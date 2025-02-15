@@ -1,8 +1,7 @@
 import { Server } from 'socket.io';
 import { type Server as HTTPServer } from 'http';
-import { type Socket } from 'socket.io-client';
 import { kv } from '@vercel/kv';
-import { db, updateGameState, addMessage, updateReadyState } from './db';
+import { updateGameState, addMessage, updateReadyState } from './db';
 import { type GameState, type Message } from './shared/schema';
 import { ratelimit } from './ratelimit';
 

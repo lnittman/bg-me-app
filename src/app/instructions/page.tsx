@@ -247,13 +247,13 @@ export default function Instructions() {
                     <AnimatedContent open={openSections.getting}>
                       <div className="pt-3">
                         <div className="lowercase space-y-6">
-                          <p>click "create room" on the home page</p>
+                          <p>click &quot;create room&quot; on the home page</p>
 
                           <p>choose your player name and emoji</p>
 
                           <p>share the room link with a friend</p>
 
-                          <p>both players click "join as player"</p>
+                          <p>both players click &quot;join as player&quot;</p>
 
                           <p>the creator can start the match when ready</p>
                         </div>

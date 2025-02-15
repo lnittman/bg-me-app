@@ -6,10 +6,13 @@ import { type Player } from '@/lib/shared/schema';
 
 export const runtime = 'edge';
 
-export async function POST(
-  request: Request,
-  { params }: { params: { roomId: string } }
-) {
+type Context = {
+  params: {
+    roomId: string;
+  };
+};
+
+export async function POST(request: Request, { params }: Context) {
   try {
     const { success } = await ratelimit.room.limit();
     if (!success) {
