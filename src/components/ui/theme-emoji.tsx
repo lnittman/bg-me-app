@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState } from "react"
 
 interface ThemeEmojiProps {
   size?: "sm" | "lg"
@@ -9,11 +10,24 @@ interface ThemeEmojiProps {
 
 export function ThemeEmoji({ size = "sm" }: ThemeEmojiProps) {
   const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
+  const [mounted, setMounted] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isDark = resolvedTheme === "dark"
   const sizes = {
     sm: "text-lg",
     lg: "text-6xl",
+  }
+
+  if (!mounted) {
+    return (
+      <div className={`relative flex items-center justify-center cursor-pointer ${size === "lg" ? "h-16" : "h-6"}`}>
+        <span className={sizes[size]} role="img" aria-label="loading">⚪️</span>
+      </div>
+    )
   }
 
   return (

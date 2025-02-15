@@ -2,8 +2,21 @@ import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { Header } from '@/components/ui/header';
 import { Toaster } from 'sonner';
+import { type Metadata, type Viewport } from 'next';
 
-export const metadata = {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' }
+  ],
+};
+
+export const metadata: Metadata = {
   title: 'bg.me',
   description: 'play backgammon with anyone, anywhere',
   manifest: '/manifest.json',
@@ -15,17 +28,6 @@ export const metadata = {
     apple: [
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
-  },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' }
-  ],
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
   },
   appleWebApp: {
     capable: true,
