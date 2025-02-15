@@ -1,10 +1,11 @@
-import { Suspense } from 'react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ThemeEmoji } from '@/components/ThemeEmoji';
-import Link from 'next/link';
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { ThemeEmoji } from "@/components/ui/theme-emoji"
 
-export default function HomePage() {
+export default function Home() {
+  const text = "anyone, anywhere".split("")
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background overflow-hidden">
       <Card className="w-full max-w-md mx-4">
@@ -13,7 +14,7 @@ export default function HomePage() {
           <div className="text-muted-foreground lowercase text-lg flex flex-col">
             <span>play backgammon with</span>
             <span className="animate-flow-text">
-              {[..."anyone, anywhere"].map((char, i) => (
+              {text.map((char, i) => (
                 <span
                   key={i}
                   style={{
@@ -27,17 +28,14 @@ export default function HomePage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Suspense fallback={<div>Loading...</div>}>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full lowercase"
-              asChild
-            >
-              <Link href="/room/create">create room</Link>
-            </Button>
-          </Suspense>
-          
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="w-full lowercase"
+            asChild
+          >
+            <Link href="/room/create">create room</Link>
+          </Button>
           <Button 
             variant="secondary" 
             size="lg" 
@@ -49,5 +47,5 @@ export default function HomePage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createRoom } from '@/lib/storage';
+import { type InsertablePlayer } from '@/lib/db';
 
 export const runtime = 'edge';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const room = await createRoom();
+    const { player } = await request.json() as { player: InsertablePlayer };
+    const room = await createRoom(player);
     return NextResponse.json(room);
   } catch (error) {
     console.error('Error creating room:', error);
