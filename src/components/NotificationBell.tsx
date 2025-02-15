@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { KnockFeedProvider, useFeedStore } from "@knocklabs/react";
 import { knockClient, KNOCK_CHANNEL_ID } from "@/lib/knock";
+import { Icon } from "@/components/ui/icon";
 
 function NotificationButton() {
   const store = useFeedStore();
@@ -17,7 +17,8 @@ function NotificationButton() {
       className="relative"
       aria-label={`${unseenCount} unread notifications`}
     >
-      <Bell
+      <Icon
+        name="Bell"
         className={cn(
           "w-5 h-5 transition-colors",
           unseenCount > 0 && "text-primary"

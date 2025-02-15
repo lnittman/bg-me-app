@@ -1,7 +1,5 @@
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Link2 } from "lucide-react";
-import { toast } from "sonner";
 import { type Player } from "@/types/schema";
 import { 
   Tooltip, 
@@ -10,6 +8,8 @@ import {
   TooltipProvider 
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/icon";
+import { toast } from "sonner";
 
 interface MatchProps {
   roomId: string;
@@ -47,14 +47,14 @@ export default function Match({
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between py-4">
         <div className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
+          <Icon name="Users" className="h-5 w-5" />
           <h2 className="text-xl font-bold lowercase">match</h2>
         </div>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={copyLink}>
-                <Link2 className="h-4 w-4" />
+                <Icon name="Link" className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -86,7 +86,7 @@ export default function Match({
                 </>
               ) : (
                 <>
-                  <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                  <Icon name="Users" className="h-12 w-12 text-muted-foreground mb-4" />
                   <Button
                     onClick={onJoinAsPlayer}
                     disabled={!canJoinAsPlayer}

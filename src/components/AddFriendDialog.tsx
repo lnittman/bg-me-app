@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { Icon } from "@/components/ui/icon";
 
 export function AddFriendDialog() {
   const [open, setOpen] = useState(false);
@@ -49,7 +49,7 @@ export function AddFriendDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <UserPlus className="w-5 h-5" />
+          <Icon name="UserPlus" className="w-5 h-5" />
         </Button>
       </DialogTrigger>
       <DialogContent>

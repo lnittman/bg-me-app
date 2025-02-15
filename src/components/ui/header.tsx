@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
 import { FriendRequests } from "@/components/FriendRequests"
 import { NotificationBell } from "@/components/NotificationBell"
+import { Icon } from "@/components/ui/icon"
 
 export function Header() {
   const { data: session } = useSession()
@@ -35,7 +36,10 @@ export function Header() {
               <>
                 <FriendRequests />
                 <Button variant="outline" size="sm" className="lowercase" asChild>
-                  <Link href="/room">my games</Link>
+                  <Link href="/room" className="flex items-center gap-2">
+                    <Icon name="GameController" className="h-4 w-4" />
+                    <span>my games</span>
+                  </Link>
                 </Button>
                 <NotificationBell />
               </>

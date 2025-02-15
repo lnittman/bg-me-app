@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell } from "lucide-react";
 import { toast } from "sonner";
+import { Icon } from "@/components/ui/icon";
 
 interface FriendRequest {
   id: string;
@@ -66,7 +66,7 @@ export function FriendRequests() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5" />
+          <Icon name="UserPlus" className="w-5 h-5" />
           {requests.length > 0 && (
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
               {requests.length}

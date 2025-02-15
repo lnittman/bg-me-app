@@ -2,13 +2,6 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { SunIcon, MoonIcon, MonitorIcon } from "lucide-react"
-import { 
-  HamburgerMenuIcon, 
-  QuestionMarkIcon,
-  Pencil2Icon
-} from "@radix-ui/react-icons"
-import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "next-auth/react"
 import {
   DropdownMenu,
@@ -17,8 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Icon } from "@/components/ui/icon"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export function ThemeSwitcher() {
   const { setTheme, theme } = useTheme()
@@ -33,7 +28,7 @@ export function ThemeSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
-          <HamburgerMenuIcon className="h-[1.2rem] w-[1.2rem]" />
+          <Icon name="List" className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -54,14 +49,14 @@ export function ThemeSwitcher() {
         <DropdownMenuItem asChild>
           <Link href="/about" className="lowercase flex items-center justify-between w-full px-4">
             <span>about</span>
-            <QuestionMarkIcon className="h-4 w-4" />
+            <Icon name="Question" className="h-4 w-4" />
           </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild>
           <Link href="/blog" className="lowercase flex items-center justify-between w-full px-4">
             <span>blog</span>
-            <Pencil2Icon className="h-4 w-4" />
+            <Icon name="PencilSimple" className="h-4 w-4" />
           </Link>
         </DropdownMenuItem>
         
@@ -78,7 +73,7 @@ export function ThemeSwitcher() {
               theme === "light" && "bg-background shadow-sm hover:shadow-md"
             )}
           >
-            <SunIcon className="size-4 transition-transform duration-200 hover:scale-110" />
+            <Icon name="Sun" className="size-4 transition-transform duration-200 hover:scale-110" />
             <span className="sr-only">Light theme</span>
           </Button>
           <Button
@@ -91,7 +86,7 @@ export function ThemeSwitcher() {
               theme === "dark" && "bg-background shadow-sm hover:shadow-md"
             )}
           >
-            <MoonIcon className="size-4 transition-transform duration-200 hover:scale-110" />
+            <Icon name="Moon" className="size-4 transition-transform duration-200 hover:scale-110" />
             <span className="sr-only">Dark theme</span>
           </Button>
           <Button
@@ -104,7 +99,7 @@ export function ThemeSwitcher() {
               theme === "system" && "bg-background shadow-sm hover:shadow-md"
             )}
           >
-            <MonitorIcon className="size-4 transition-transform duration-200 hover:scale-110" />
+            <Icon name="Desktop" className="size-4 transition-transform duration-200 hover:scale-110" />
             <span className="sr-only">System theme</span>
           </Button>
         </div>

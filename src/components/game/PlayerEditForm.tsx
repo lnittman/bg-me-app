@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { generateFriendlyName } from "@/lib/friendly-words";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { Icon } from "@/components/ui/icon";
 
 // Curated list of emojis we want to use
 const EMOJI_OPTIONS = [
@@ -80,7 +80,7 @@ export default function PlayerEditForm({
               size="icon"
               onClick={generateNewName}
             >
-              <ReloadIcon className="h-4 w-4" />
+              <Icon name="ArrowClockwise" className="h-4 w-4" />
             </Button>
           </div>
         </div>
