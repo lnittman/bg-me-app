@@ -1,109 +1,70 @@
-import { type WebSocket } from '@vercel/edge';
-import { kv } from '@vercel/kv';
-import { updateRoom, addMessage } from '@/lib/storage';
-
-interface GameEvent {
-  type: 'move' | 'roll' | 'ready' | 'message';
-  from?: number;
-  to?: number;
-  playerId?: string;
-  isReady?: boolean;
-  message?: {
-    playerId: string;
-    text: string;
-    timestamp: number;
-  };
-}
+import { type RoomEvent } from '@/types/schema';
+import { getRoom, addMessage, addPlayer, removePlayer, setPlayerReady, startGame } from '@/lib/storage';
 
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
-  const { socket, response } = Deno.upgradeWebSocket(request);
-  const url = new URL(request.url);
-  const roomId = url.pathname.split('/')[3];
+  try {
+    const matches = request.url.match(/\/rooms\/([^\/]+)\/socket/);
+    const id = matches?.[1];
+    if (!id) {
+      return new Response('Invalid room ID', { status: 400 });
+    }
 
-  // Add this socket to room's socket list
-  const roomSockets = (await kv.get<WebSocket[]>(`sockets:${roomId}`)) || [];
-  roomSockets.push(socket);
-  await kv.set(`sockets:${roomId}`, roomSockets);
+    const room = await getRoom(id);
+    
+    if (!room) {
+      return new Response('Room not found', { status: 404 });
+    }
 
-  socket.onopen = () => {
-    console.log('WebSocket opened');
-  };
+    const upgradeHeader = request.headers.get('Upgrade');
+    if (!upgradeHeader || upgradeHeader !== 'websocket') {
+      return new Response('Expected Upgrade: websocket', { status: 426 });
+    }
 
-  socket.onmessage = async (event) => {
-    try {
-      const gameEvent = JSON.parse(event.data) as GameEvent;
-      let room;
+    const socket = new WebSocket(`wss://${request.headers.get('host')}/api/rooms/${id}/socket`);
 
-      switch (gameEvent.type) {
-        case 'move':
-          if (gameEvent.from !== undefined && gameEvent.to !== undefined) {
-            room = await updateRoom(roomId, {
-              type: 'move',
-              from: gameEvent.from,
-              to: gameEvent.to,
-            });
-          }
+    socket.addEventListener('message', async (event: MessageEvent) => {
+      const data = JSON.parse(event.data) as RoomEvent;
+      const room = await getRoom(id);
+      if (!room) return;
+
+      switch (data.type) {
+        case 'join':
+          await addPlayer(id, data.player);
           break;
-
-        case 'roll':
-          room = await updateRoom(roomId, { type: 'roll' });
+        case 'leave':
+          await removePlayer(id, data.playerId);
           break;
-
         case 'ready':
-          if (gameEvent.playerId !== undefined && gameEvent.isReady !== undefined) {
-            room = await updateRoom(roomId, {
-              type: 'ready',
-              playerId: gameEvent.playerId,
-              isReady: gameEvent.isReady,
-            });
-          }
+          await setPlayerReady(id, data.playerId, true);
           break;
-
+        case 'unready':
+          await setPlayerReady(id, data.playerId, false);
+          break;
+        case 'start':
+          await startGame(id);
+          break;
         case 'message':
-          if (gameEvent.message) {
-            await addMessage(roomId, {
-              room_id: roomId,
-              player_id: gameEvent.message.playerId,
-              content: gameEvent.message.text,
-            });
-            room = await updateRoom(roomId, { type: 'message' });
-          }
+          await addMessage(id, data.message);
           break;
       }
 
-      if (room) {
-        // Broadcast update to all connected sockets
-        const roomSockets = await kv.get<WebSocket[]>(`sockets:${roomId}`);
-        if (roomSockets) {
-          const message = JSON.stringify(room);
-          roomSockets.forEach((s) => {
-            try {
-              s.send(message);
-            } catch (err) {
-              console.error('Error sending message to socket:', err);
-            }
-          });
-        }
+      const updatedRoom = await getRoom(id);
+      if (updatedRoom) {
+        socket.send(JSON.stringify(updatedRoom));
       }
-    } catch (error) {
-      console.error('Error handling WebSocket message:', error);
-      socket.send(JSON.stringify({ error: 'Failed to process event' }));
-    }
-  };
+    });
 
-  socket.onclose = async () => {
-    // Remove this socket from room's socket list
-    const roomSockets = await kv.get<WebSocket[]>(`sockets:${roomId}`);
-    if (roomSockets) {
-      const index = roomSockets.indexOf(socket);
-      if (index > -1) {
-        roomSockets.splice(index, 1);
-        await kv.set(`sockets:${roomId}`, roomSockets);
-      }
-    }
-  };
-
-  return response;
+    return new Response(null, {
+      status: 101,
+      headers: {
+        'Upgrade': 'websocket',
+        'Connection': 'Upgrade',
+        'Sec-WebSocket-Accept': request.headers.get('Sec-WebSocket-Key') || '',
+      },
+    });
+  } catch {
+    return new Response('Failed to handle WebSocket connection', { status: 500 });
+  }
 } 

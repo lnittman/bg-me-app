@@ -1,6 +1,7 @@
 import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { Header } from '@/components/ui/header';
+import { Toaster } from 'sonner';
 
 export const metadata = {
   title: 'bg.me',
@@ -30,6 +31,7 @@ export default function RootLayout({
               </div>
             </main>
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

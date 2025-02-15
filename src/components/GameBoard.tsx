@@ -1,9 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { type GameState, type Player } from '@/lib/types';
+import { type GameState, type Player } from '@/types/schema';
 
 interface GameBoardProps {
   gameState: GameState;
@@ -12,70 +9,59 @@ interface GameBoardProps {
 }
 
 export function GameBoard({ gameState, currentPlayer, onMove }: GameBoardProps) {
-  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
-  const isPlayerTurn = gameState.turn === 'white' 
-    ? currentPlayer.id === gameState.players?.[0]?.id 
-    : currentPlayer.id === gameState.players?.[1]?.id;
+  const isPlayerTurn = gameState.turn === currentPlayer.color;
 
-  const handlePointClick = (pointIndex: number) => {
-    if (!isPlayerTurn || gameState.winner) return;
-
-    if (selectedPoint === null) {
-      // Select a point if it has pieces of the current player's color
-      if (gameState.board[pointIndex] > 0 && gameState.turn === 'white' ||
-          gameState.board[pointIndex] < 0 && gameState.turn === 'black') {
-        setSelectedPoint(pointIndex);
-      }
-    } else {
-      // Attempt to move from selected point to clicked point
-      onMove(selectedPoint, pointIndex);
-      setSelectedPoint(null);
-    }
+  const handleMove = (from: number, to: number) => {
+    if (!isPlayerTurn || gameState.moveInProgress) return;
+    onMove(from, to);
   };
 
   return (
-    <div className="relative aspect-[2/1] bg-wood-pattern rounded-lg shadow-xl overflow-hidden">
-      <div className="absolute inset-0 grid grid-cols-12 gap-0">
-        {gameState.board.map((count, index) => (
+    <div className="relative aspect-square w-full max-w-3xl">
+      {/* Board squares */}
+      <div className="grid grid-cols-12 h-full">
+        {Array.from({ length: 24 }, (_, i) => (
           <div
-            key={index}
-            className={cn(
-              "relative h-full",
-              "cursor-pointer hover:bg-white/10 transition-colors",
-              selectedPoint === index && "bg-white/20",
-              index === 6 && "border-r-4 border-wood-dark",
-              index === 18 && "border-r-4 border-wood-dark"
-            )}
-            onClick={() => handlePointClick(index)}
+            key={i}
+            className={`
+              relative border border-border
+              ${i % 2 === 0 ? 'bg-primary/10' : 'bg-primary/5'}
+              ${isPlayerTurn && !gameState.moveInProgress ? 'cursor-pointer' : ''}
+            `}
+            onClick={() => handleMove(i, i)}
           >
-            <AnimatePresence>
-              {Array.from({ length: Math.abs(count) }).map((_, pieceIndex) => (
-                <motion.div
-                  key={pieceIndex}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className={cn(
-                    "absolute left-1/2 -translate-x-1/2",
-                    "w-[80%] aspect-square rounded-full",
-                    "shadow-md border-2",
-                    count > 0 
-                      ? "bg-white border-gray-200" 
-                      : "bg-black border-gray-800",
-                    index < 12 
-                      ? "bottom-[5%]" 
-                      : "top-[5%]"
-                  )}
-                  style={{
-                    bottom: index < 12 ? `${(pieceIndex * 15) + 5}%` : undefined,
-                    top: index >= 12 ? `${(pieceIndex * 15) + 5}%` : undefined,
-                  }}
-                />
-              ))}
-            </AnimatePresence>
+            {gameState.board[i] !== 0 && (
+              <div
+                className={`
+                  absolute inset-2 rounded-full
+                  ${gameState.board[i] > 0 ? 'bg-white' : 'bg-black'}
+                `}
+              />
+            )}
           </div>
         ))}
       </div>
+
+      {/* Dice */}
+      <div className="absolute top-4 right-4 flex gap-2">
+        {gameState.dice.map((die, i) => (
+          <div
+            key={i}
+            className="w-8 h-8 bg-background border border-border rounded-lg flex items-center justify-center text-lg"
+          >
+            {die}
+          </div>
+        ))}
+      </div>
+
+      {/* Game over */}
+      {gameState.winner && (
+        <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+          <div className="text-2xl font-bold">
+            {gameState.winner === currentPlayer.color ? 'You won!' : 'You lost!'}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

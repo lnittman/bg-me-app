@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { generateFriendlyName } from "@/lib/friendly-words";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import type { Data as EmojiMartData } from '@emoji-mart/data';
 
 // Curated list of emojis we want to use
 const EMOJI_OPTIONS = [

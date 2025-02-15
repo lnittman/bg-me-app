@@ -3,15 +3,14 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { generateFriendlyName } from "@/lib/utils";
-import { type Player } from "@shared/schema";
-import { Users } from "lucide-react";
+import { generateFriendlyName } from "@/lib/friendly-words";
+import { type Player } from "@/lib/types";
+import { Users, RefreshCcw } from "lucide-react";
 
 interface PlayerInfoProps {
   playerId: string;
   players: Player[];
   onUpdatePlayer: (name: string, emoji: string) => void;
-  isSpectator: boolean;
 }
 
 const EMOJI_OPTIONS = ["😊", "🎮", "🎲", "🎯", "🎪", "🃏", "🎨", "🎭"];
@@ -20,13 +19,10 @@ export default function PlayerInfo({
   playerId,
   players,
   onUpdatePlayer,
-  isSpectator,
 }: PlayerInfoProps) {
   const [name, setName] = useState(() => generateFriendlyName());
   const [emoji, setEmoji] = useState(EMOJI_OPTIONS[0]);
   const [isEditing, setIsEditing] = useState(false);
-
-  const currentPlayer = players.find(p => p.id === playerId);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

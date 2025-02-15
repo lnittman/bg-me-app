@@ -1,6 +1,9 @@
 import { kv } from '@vercel/kv';
 import { db } from './db';
-import { type InsertableRoom, type InsertablePlayer, type InsertableMessage } from './db';
+import { type InsertablePlayer } from './db';
+import { type Room, type Player, type Message, type GameState } from '@/types/schema';
+
+const rooms = new Map<string, Room>();
 
 export async function createRoom(player: InsertablePlayer) {
   const [room] = await db
@@ -15,7 +18,7 @@ export async function createRoom(player: InsertablePlayer) {
       }),
       status: 'waiting',
     })
-    .returning('*')
+    .returning(['id', 'game_state', 'status', 'created_at', 'updated_at'])
     .execute();
 
   const [createdPlayer] = await db
@@ -26,101 +29,53 @@ export async function createRoom(player: InsertablePlayer) {
       color: 'white',
       is_host: true,
     })
-    .returning('*')
+    .returning(['id', 'name', 'emoji', 'room_id', 'color', 'is_host', 'is_ready'])
     .execute();
+
+  const playerWithJoinedAt: Player = {
+    id: createdPlayer.id,
+    name: createdPlayer.name,
+    emoji: createdPlayer.emoji,
+    color: createdPlayer.color as 'white' | 'black',
+    joinedAt: Date.now(),
+    isReady: createdPlayer.is_ready,
+  };
+
+  const roomState = {
+    ...room,
+    players: [playerWithJoinedAt],
+    spectators: [],
+    messages: [],
+  };
 
   // Cache room state in KV for faster access
-  await kv.set(`room:${room.id}`, {
-    ...room,
-    players: [createdPlayer],
-    spectators: [],
-    messages: [],
-  });
+  await kv.set(`room:${room.id}`, roomState);
 
-  return {
-    ...room,
-    players: [createdPlayer],
-    spectators: [],
-    messages: [],
-  };
+  return roomState;
 }
 
-export async function getRoom(id: string) {
-  // Try to get from KV cache first
-  const cached = await kv.get(`room:${id}`);
-  if (cached) return cached;
+export async function getRoom(id: string): Promise<Room | null> {
+  return rooms.get(id) || null;
+}
 
-  // If not in cache, get from database
-  const room = await db
-    .selectFrom('rooms')
-    .where('id', '=', id)
-    .selectAll()
-    .executeTakeFirst();
+export async function updateRoom(id: string, gameState: GameState): Promise<Room | null> {
+  const room = await getRoom(id);
+  if (!room) return null;
+  
+  room.gameState = gameState;
+  room.updatedAt = Date.now();
+  rooms.set(id, room);
+  return room;
+}
 
+export async function addMessage(roomId: string, message: Message): Promise<Room | null> {
+  const room = await getRoom(roomId);
   if (!room) return null;
 
-  const [players, messages] = await Promise.all([
-    db
-      .selectFrom('players')
-      .where('room_id', '=', id)
-      .selectAll()
-      .execute(),
-    db
-      .selectFrom('messages')
-      .where('room_id', '=', id)
-      .selectAll()
-      .execute(),
-  ]);
-
-  const result = {
-    ...room,
-    players: players.filter(p => p.color !== null),
-    spectators: players.filter(p => p.color === null),
-    messages,
-  };
-
-  // Cache for next time
-  await kv.set(`room:${id}`, result);
-
-  return result;
-}
-
-export async function updateRoom(id: string, gameState: any) {
-  const [room] = await db
-    .updateTable('rooms')
-    .set({
-      game_state: JSON.stringify(gameState),
-      updated_at: new Date(),
-    })
-    .where('id', '=', id)
-    .returning('*')
-    .execute();
-
-  // Update cache
-  const updatedRoom = await getRoom(id);
-  await kv.set(`room:${id}`, updatedRoom);
-
-  return updatedRoom;
-}
-
-export async function addMessage(roomId: string, message: InsertableMessage) {
-  const [createdMessage] = await db
-    .insertInto('messages')
-    .values({
-      ...message,
-      room_id: roomId,
-    })
-    .returning('*')
-    .execute();
-
-  // Update cache
-  const room = await getRoom(roomId);
-  if (room) {
-    room.messages.push(createdMessage);
-    await kv.set(`room:${roomId}`, room);
-  }
-
-  return createdMessage;
+  room.messages.push(message);
+  room.updatedAt = Date.now();
+  rooms.set(roomId, room);
+  return room;
 }
 
 export async function joinRoom(roomId: string, player: InsertablePlayer) {
@@ -128,9 +83,10 @@ export async function joinRoom(roomId: string, player: InsertablePlayer) {
   if (!room) throw new Error('Room not found');
 
   // Determine if player should be white, black, or spectator
-  let color: 'white' | 'black' | null = null;
-  if (room.players.length === 0) color = 'white';
-  else if (room.players.length === 1) color = 'black';
+  let color: 'white' | 'black' | undefined = undefined;
+  const players = room.players || [];
+  if (players.length === 0) color = 'white';
+  else if (players.length === 1) color = 'black';
 
   const [createdPlayer] = await db
     .insertInto('players')
@@ -140,16 +96,84 @@ export async function joinRoom(roomId: string, player: InsertablePlayer) {
       color,
       is_host: false,
     })
-    .returning('*')
+    .returning(['id', 'name', 'emoji', 'room_id', 'color', 'is_host', 'is_ready'])
     .execute();
+
+  const playerWithJoinedAt: Player = {
+    id: createdPlayer.id,
+    name: createdPlayer.name,
+    emoji: createdPlayer.emoji,
+    color: createdPlayer.color as 'white' | 'black' | undefined,
+    joinedAt: Date.now(),
+    isReady: createdPlayer.is_ready,
+  };
 
   // Update cache
   if (color) {
-    room.players.push(createdPlayer);
+    room.players = room.players || [];
+    room.players.push(playerWithJoinedAt);
   } else {
-    room.spectators.push(createdPlayer);
+    room.spectators = room.spectators || [];
+    room.spectators.push(playerWithJoinedAt);
   }
   await kv.set(`room:${roomId}`, room);
 
+  return room;
+}
+
+export async function addPlayer(
+  roomId: string,
+  player: Player,
+  asSpectator = false
+): Promise<Room | null> {
+  const room = await getRoom(roomId);
+  if (!room) return null;
+
+  if (!asSpectator) {
+    if (room.players.length >= 2) {
+      return null;
+    }
+    room.players.push(player);
+  } else {
+    room.spectators.push(player);
+  }
+
+  room.updatedAt = Date.now();
+  rooms.set(roomId, room);
+  return room;
+}
+
+export async function removePlayer(roomId: string, playerId: string): Promise<Room | null> {
+  const room = await getRoom(roomId);
+  if (!room) return null;
+
+  room.players = room.players.filter(p => p.id !== playerId);
+  room.spectators = room.spectators.filter(p => p.id !== playerId);
+  room.updatedAt = Date.now();
+  rooms.set(roomId, room);
+  return room;
+}
+
+export async function setPlayerReady(
+  roomId: string,
+  playerId: string,
+  isReady: boolean
+): Promise<Room | null> {
+  const room = await getRoom(roomId);
+  if (!room) return null;
+
+  room.readyStates[playerId] = isReady;
+  room.updatedAt = Date.now();
+  rooms.set(roomId, room);
+  return room;
+}
+
+export async function startGame(roomId: string): Promise<Room | null> {
+  const room = await getRoom(roomId);
+  if (!room) return null;
+
+  room.status = 'playing';
+  room.updatedAt = Date.now();
+  rooms.set(roomId, room);
   return room;
 } 

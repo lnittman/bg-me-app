@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { create } from 'zustand';
-import { type Room, type Player, type Message, type GameState } from '@/lib/types';
+import { type Room, type Player } from '@/types/schema';
 import { useGameSocket } from '@/hooks/useGameSocket';
 import useSWR from 'swr';
 
@@ -8,39 +9,113 @@ interface GameStore {
   currentPlayer: Player | null;
   isLoading: boolean;
   error: Error | null;
-  setCurrentRoom: (room: Room) => void;
-  setCurrentPlayer: (player: Player) => void;
-  updateGameState: (gameState: GameState) => void;
-  addMessage: (message: Message) => void;
+  setCurrentRoom: (room: Room | null) => void;
+  setCurrentPlayer: (player: Player | null) => void;
+  joinRoom: (roomId: string, player: Player) => void;
+  leaveRoom: (roomId: string, playerId: string) => void;
+  setReady: (roomId: string, playerId: string) => void;
+  setUnready: (roomId: string, playerId: string) => void;
+  startGame: (roomId: string) => void;
+  sendMessage: (roomId: string, message: string) => void;
   setError: (error: Error | null) => void;
 }
 
-const useGameStore = create<GameStore>((set) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   currentRoom: null,
   currentPlayer: null,
   isLoading: false,
   error: null,
   setCurrentRoom: (room) => set({ currentRoom: room }),
   setCurrentPlayer: (player) => set({ currentPlayer: player }),
-  updateGameState: (gameState) => 
-    set((state) => ({
-      currentRoom: state.currentRoom 
-        ? { ...state.currentRoom, gameState }
-        : null
-    })),
-  addMessage: (message) =>
-    set((state) => ({
-      currentRoom: state.currentRoom
-        ? {
-            ...state.currentRoom,
-            messages: [...state.currentRoom.messages, message],
-          }
-        : null
-    })),
+
+  joinRoom: (roomId, player) => {
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/join`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(player),
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
+  leaveRoom: (roomId, playerId) => {
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/leave`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
+  setReady: (roomId, playerId) => {
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/ready`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
+  setUnready: (roomId, playerId) => {
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/unready`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
+  startGame: (roomId) => {
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/start`, {
+      method: 'POST',
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
+  sendMessage: (roomId, text) => {
+    const { currentPlayer } = get();
+    if (!currentPlayer) return;
+
+    set({ isLoading: true });
+    fetch(`/api/rooms/${roomId}/message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        playerId: currentPlayer.id,
+        playerName: currentPlayer.name,
+        text,
+        timestamp: Date.now(),
+      }),
+    })
+      .then((res) => res.json())
+      .then((room) => set({ currentRoom: room }))
+      .catch((error) => set({ error }))
+      .finally(() => set({ isLoading: false }));
+  },
+
   setError: (error) => set({ error }),
 }));
 
-// Custom hook that combines SWR, WebSocket, and Zustand
+// Custom hook that combines SWR and WebSocket
 export function useGame(roomId: string | null) {
   const { 
     setCurrentRoom, 
@@ -64,7 +139,7 @@ export function useGame(roomId: string | null) {
   );
 
   // WebSocket connection for real-time updates
-  const { sendEvent } = useGameSocket(
+  const { send } = useGameSocket(
     roomId ?? '',
     (updatedRoom) => {
       setCurrentRoom(updatedRoom);
@@ -84,7 +159,7 @@ export function useGame(roomId: string | null) {
   return {
     room: currentRoom,
     player: currentPlayer,
-    sendEvent,
+    send,
     isLoading: !error && !room,
     error,
   };

@@ -1,52 +1,51 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { type Room, type RoomEvent } from '@/lib/types';
+import { type Room, type RoomEvent } from '@/types/schema';
 
-export function useGameSocket(roomId: string, onRoomUpdate: (room: Room) => void) {
+export function useGameSocket(
+  roomId: string,
+  onRoomUpdate: (room: Room) => void,
+  autoConnect = true
+) {
   const socketRef = useRef<WebSocket | null>(null);
 
-  const sendEvent = useCallback((event: RoomEvent) => {
+  const connect = useCallback(() => {
+    if (socketRef.current?.readyState === WebSocket.OPEN) return;
+
+    const socket = new WebSocket(`/api/rooms/${roomId}/socket`);
+    socketRef.current = socket;
+
+    socket.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      onRoomUpdate(data);
+    });
+
+    socket.addEventListener('close', () => {
+      socketRef.current = null;
+    });
+  }, [roomId, onRoomUpdate]);
+
+  const send = useCallback((event: RoomEvent) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(event));
     }
   }, []);
 
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/api/rooms/${roomId}/socket`;
-    
-    const socket = new WebSocket(wsUrl);
-    socketRef.current = socket;
-
-    socket.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.error) {
-          console.error('WebSocket error:', data.error);
-        } else {
-          onRoomUpdate(data as Room);
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    socket.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
+    if (autoConnect) {
+      connect();
+    }
 
     return () => {
-      socket.close();
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
     };
-  }, [roomId, onRoomUpdate]);
+  }, [connect, autoConnect]);
 
-  return { sendEvent };
+  return {
+    connect,
+    send,
+    socket: socketRef.current,
+  };
 }

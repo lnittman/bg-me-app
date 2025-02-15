@@ -1,7 +1,13 @@
 import { sql } from '@vercel/postgres';
 import { type Generated, type Insertable, type Selectable, type Updateable } from 'kysely';
 
-export interface Room {
+export interface Database {
+  rooms: RoomTable;
+  players: PlayerTable;
+  messages: MessageTable;
+}
+
+export interface RoomTable {
   id: Generated<string>;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
@@ -9,43 +15,37 @@ export interface Room {
   status: 'waiting' | 'playing' | 'finished';
 }
 
-export interface Player {
+export interface PlayerTable {
   id: Generated<string>;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
   room_id: string;
   name: string;
   emoji: string;
   color: 'white' | 'black' | null;
   is_host: boolean;
   is_ready: boolean;
-  created_at: Generated<Date>;
-  updated_at: Generated<Date>;
 }
 
-export interface Message {
+export interface MessageTable {
   id: Generated<string>;
+  created_at: Generated<Date>;
   room_id: string;
   player_id: string;
   content: string;
-  created_at: Generated<Date>;
 }
 
-export interface Database {
-  rooms: Room;
-  players: Player;
-  messages: Message;
-}
+export type Room = Selectable<RoomTable>;
+export type InsertableRoom = Insertable<RoomTable>;
+export type UpdateableRoom = Updateable<RoomTable>;
 
-export type InsertableRoom = Insertable<Room>;
-export type SelectableRoom = Selectable<Room>;
-export type UpdateableRoom = Updateable<Room>;
+export type Player = Selectable<PlayerTable>;
+export type InsertablePlayer = Insertable<PlayerTable>;
+export type UpdateablePlayer = Updateable<PlayerTable>;
 
-export type InsertablePlayer = Insertable<Player>;
-export type SelectablePlayer = Selectable<Player>;
-export type UpdateablePlayer = Updateable<Player>;
-
-export type InsertableMessage = Insertable<Message>;
-export type SelectableMessage = Selectable<Message>;
-export type UpdateableMessage = Updateable<Message>;
+export type Message = Selectable<MessageTable>;
+export type InsertableMessage = Insertable<MessageTable>;
+export type UpdateableMessage = Updateable<MessageTable>;
 
 // Create tables if they don't exist
 export async function createTables() {

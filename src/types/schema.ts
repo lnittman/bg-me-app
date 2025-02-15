@@ -3,17 +3,19 @@ export interface Player {
   name: string;
   emoji: string;
   joinedAt: number;
-  color?: 'white' | 'black' | null;
-  isHost?: boolean;
   isReady?: boolean;
+  color?: 'white' | 'black';
 }
 
 export interface Message {
   id: string;
-  content: string;
   playerId: string;
-  roomId: string;
-  createdAt: number;
+  playerName: string;
+  text: string;
+  timestamp: number;
+  content?: string;
+  roomId?: string;
+  createdAt?: number;
 }
 
 export interface GameState {
@@ -31,6 +33,7 @@ export interface Room {
   players: Player[];
   spectators: Player[];
   messages: Message[];
+  readyStates: Record<string, boolean>;
   createdAt: number;
   updatedAt: number;
 }
@@ -42,5 +45,4 @@ export type RoomEvent =
   | { type: 'unready'; playerId: string }
   | { type: 'start' }
   | { type: 'move'; from: number; to: number }
-  | { type: 'roll' }
   | { type: 'message'; message: Message }; 

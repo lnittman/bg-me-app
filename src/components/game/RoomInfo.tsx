@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Link2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { type Player } from "@shared/schema";
+import { toast } from "sonner";
+import { type Player } from "@/types/schema";
 import { 
   Tooltip, 
   TooltipContent, 
@@ -29,25 +28,17 @@ export default function Match({
   onStartGame,
   canStart,
 }: MatchProps) {
-  const { toast } = useToast();
-  const [copied, setCopied] = useState(false);
-
   const roomUrl = `${window.location.origin}/game/${roomId}`;
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(roomUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "link copied",
-        description: "share it with your friends to play together",
+      toast("Link copied to clipboard", {
+        description: "Share it with your friends to play together",
       });
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: "couldn't copy link",
-        description: "please try copying manually",
+    } catch {
+      toast("Couldn't copy link", {
+        description: "Please try copying manually",
       });
     }
   };

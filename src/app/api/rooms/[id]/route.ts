@@ -1,26 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { getRoom } from '@/lib/storage';
 
-export const runtime = 'edge';
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
-    const room = await getRoom(params.id);
-    if (!room) {
-      return NextResponse.json(
-        { error: 'Room not found' },
-        { status: 404 }
-      );
+    const matches = request.url.match(/\/rooms\/([^\/]+)$/);
+    const id = matches?.[1];
+    if (!id) {
+      return new Response('Invalid room ID', { status: 400 });
     }
-    return NextResponse.json(room);
-  } catch (error) {
-    console.error('Error getting room:', error);
-    return NextResponse.json(
-      { error: 'Failed to get room' },
-      { status: 500 }
-    );
+
+    const room = await getRoom(id);
+    
+    if (!room) {
+      return new Response('Room not found', { status: 404 });
+    }
+
+    return Response.json(room);
+  } catch {
+    return new Response('Failed to get room', { status: 500 });
   }
 }

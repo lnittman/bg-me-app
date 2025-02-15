@@ -1,84 +1,63 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useGame } from '@/store/game';
 import { GameBoard } from '@/components/GameBoard';
-import { PlayerInfo } from '@/components/PlayerInfo';
 import { ChatBox } from '@/components/ChatBox';
-import { DiceRoll } from '@/components/DiceRoll';
+import { Card, CardContent } from '@/components/ui/card';
 
-export function GameRoom({ roomId }: { roomId: string }) {
-  const router = useRouter();
-  const { room, player, sendEvent, isLoading, error } = useGame(roomId);
-
-  useEffect(() => {
-    if (error) {
-      router.push('/');
-    }
-  }, [error, router]);
+export function GameRoom() {
+  const { id: roomId } = useParams();
+  const { room, player, send, isLoading, error } = useGame(roomId as string);
 
   if (isLoading) {
-    return <div>Loading game...</div>;
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
   }
 
   if (!room || !player) {
     return <div>Room not found</div>;
   }
 
-  const isPlayerTurn = room.gameState.turn === 'white' 
-    ? room.players[0]?.id === player.id 
-    : room.players[1]?.id === player.id;
+  const handleMove = (from: number, to: number) => {
+    send({ type: 'move', from, to });
+  };
+
+  const handleSendMessage = (text: string) => {
+    send({
+      type: 'message',
+      message: {
+        id: Math.random().toString(36).substring(2, 9),
+        playerId: player.id,
+        playerName: player.name,
+        text,
+        timestamp: Date.now(),
+      },
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
-      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <GameBoard 
+    <div className="grid grid-cols-[1fr_300px] gap-4 h-full">
+      <Card>
+        <CardContent className="p-4">
+          <GameBoard
             gameState={room.gameState}
             currentPlayer={player}
-            onMove={(from, to) => {
-              if (isPlayerTurn) {
-                sendEvent({ type: 'move', from, to });
-              }
-            }}
+            onMove={handleMove}
           />
-          
-          <div className="mt-4">
-            <DiceRoll 
-              dice={room.gameState.dice}
-              canRoll={isPlayerTurn && !room.gameState.moveInProgress}
-              onRoll={() => sendEvent({ type: 'roll' })}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-8">
-          <PlayerInfo 
-            players={room.players}
-            spectators={room.spectators}
-            readyStates={room.readyStates}
-            currentPlayer={player}
-            onReady={(isReady) => {
-              sendEvent({ type: 'ready', playerId: player.id, isReady });
-            }}
-          />
-          
-          <ChatBox 
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-0 h-full">
+          <ChatBox
             messages={room.messages}
-            onSendMessage={(text) => {
-              sendEvent({
-                type: 'message',
-                message: {
-                  playerId: player.id,
-                  text,
-                  timestamp: Date.now(),
-                },
-              });
-            }}
+            onSendMessage={handleSendMessage}
           />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Link2Icon } from "@radix-ui/react-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { type Player } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
+import { type Player } from "@/types/schema";
+import { toast } from "sonner";
 
 interface MatchProps {
   roomId: string;
@@ -13,31 +13,10 @@ interface MatchProps {
   onJoinAsPlayer: () => void;
   canJoinAsPlayer: boolean;
   onStartGame: () => void;
-  canStart: boolean;
   currentUserId: string;
   onPlayerReady: (playerId: string, isReady: boolean) => void;
   readyStates: Record<string, boolean>;
 }
-
-const ReadyStatus = ({ isReady, isCurrentUser }: { isReady: boolean; isCurrentUser: boolean }) => (
-  <motion.div
-    initial={{ scale: 0.8, opacity: 0 }}
-    animate={{ 
-      scale: 1, 
-      opacity: 1,
-      backgroundColor: isReady ? "hsl(var(--primary))" : "transparent",
-      color: isReady ? "hsl(var(--primary-foreground))" : "hsl(var(--primary))",
-      borderColor: "hsl(var(--primary))"
-    }}
-    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-    className={cn(
-      "absolute bottom-4 right-4 px-3 py-1 rounded-md text-sm border",
-      isCurrentUser ? "cursor-pointer" : "cursor-default"
-    )}
-  >
-    {isReady ? "ready!" : "ready?"}
-  </motion.div>
-);
 
 export default function Match({ 
   roomId,
@@ -50,27 +29,18 @@ export default function Match({
   readyStates,
 }: MatchProps) {
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const roomUrl = `${window.location.origin}/game/${roomId}`;
-
-  const { toast } = useToast();
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(roomUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "link copied",
-        description: "share it with your friends to play together",
+      toast("Link copied to clipboard", {
+        description: "Share it with your friends to play together",
       });
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      toast({
-        variant: "destructive",
-        title: "couldn't copy link",
-        description: "please try copying manually",
+    } catch {
+      toast("Couldn't copy link", {
+        description: "Please try copying manually",
       });
     }
   };
@@ -86,7 +56,7 @@ export default function Match({
         countdown === null) {
       setCountdown(5);
     }
-  }, [readyStates, players]);
+  }, [readyStates, players, countdown]);
 
   // Countdown timer
   useEffect(() => {
@@ -101,7 +71,7 @@ export default function Match({
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [countdown, onStartGame]);
 
   return (
     <Card variant="bordered" className="h-full flex flex-col">

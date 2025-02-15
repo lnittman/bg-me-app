@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { type GameState } from "@shared/schema";
+import { type GameState } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DotFilledIcon } from "@radix-ui/react-icons";
-import { getPlayerBoard } from "@/lib/gameLogic";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BoardProps {
@@ -30,7 +28,7 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
     }
   };
 
-  const playerBoard = getPlayerBoard(gameState.board, currentPlayer === "white");
+  const playerBoard = currentPlayer === "white" ? gameState.board : [...gameState.board].reverse();
 
   return (
     <div className="relative w-full h-full flex flex-col gap-4">
@@ -45,13 +43,12 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
           <div className="flex-1 flex">
             {/* Top Left Quadrant (points 12-17) */}
             <div className="flex-1 grid grid-cols-6 gap-px p-4">
-              {playerBoard.slice(12, 18).map((count, i) => (
+              {playerBoard.slice(12, 18).map((count: number, i: number) => (
                 <Point 
                   key={i} 
                   index={i + 12}
                   count={count}
                   isTop={true}
-                  isLeft={true}
                   selected={selectedPoint === i + 12}
                   onClick={() => handlePointClick(i + 12)}
                   isMyTurn={isMyTurn}
@@ -61,13 +58,12 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
             </div>
             {/* Top Right Quadrant (points 6-11) */}
             <div className="flex-1 grid grid-cols-6 gap-px p-4">
-              {playerBoard.slice(6, 12).map((count, i) => (
+              {playerBoard.slice(6, 12).map((count: number, i: number) => (
                 <Point 
                   key={i} 
                   index={i + 6}
                   count={count}
                   isTop={true}
-                  isLeft={false}
                   selected={selectedPoint === i + 6}
                   onClick={() => handlePointClick(i + 6)}
                   isMyTurn={isMyTurn}
@@ -81,13 +77,12 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
           <div className="flex-1 flex">
             {/* Bottom Left Quadrant (points 18-23) */}
             <div className="flex-1 grid grid-cols-6 gap-px p-4">
-              {playerBoard.slice(18, 24).reverse().map((count, i) => (
+              {playerBoard.slice(18, 24).reverse().map((count: number, i: number) => (
                 <Point 
                   key={i} 
                   index={23 - i}
                   count={count}
                   isTop={false}
-                  isLeft={true}
                   selected={selectedPoint === 23 - i}
                   onClick={() => handlePointClick(23 - i)}
                   isMyTurn={isMyTurn}
@@ -97,13 +92,12 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
             </div>
             {/* Bottom Right Quadrant (points 0-5) */}
             <div className="flex-1 grid grid-cols-6 gap-px p-4">
-              {playerBoard.slice(0, 6).reverse().map((count, i) => (
+              {playerBoard.slice(0, 6).reverse().map((count: number, i: number) => (
                 <Point 
                   key={i} 
                   index={5 - i}
                   count={count}
                   isTop={false}
-                  isLeft={false}
                   selected={selectedPoint === 5 - i}
                   onClick={() => handlePointClick(5 - i)}
                   isMyTurn={isMyTurn}
@@ -137,7 +131,7 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
         </AnimatePresence>
 
         <div className="flex gap-4">
-          {gameState.dice.map((die, i) => (
+          {gameState.dice.map((die: number, i: number) => (
             <div
               key={i}
               className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-xl font-medium"
@@ -151,26 +145,25 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
   );
 }
 
-// New Point component for better organization
-function Point({
-  index,
-  count,
-  isTop,
-  isLeft,
-  selected,
-  onClick,
-  isMyTurn,
-  isSpectator,
-}: {
+interface PointProps {
   index: number;
   count: number;
   isTop: boolean;
-  isLeft: boolean;
   selected: boolean;
   onClick: () => void;
   isMyTurn: boolean;
   isSpectator: boolean;
-}) {
+}
+
+function Point({
+  index,
+  count,
+  isTop,
+  selected,
+  onClick,
+  isMyTurn,
+  isSpectator,
+}: PointProps) {
   const isEven = index % 2 === 0;
   
   return (

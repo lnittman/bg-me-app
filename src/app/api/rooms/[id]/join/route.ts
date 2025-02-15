@@ -1,22 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type Player } from '@/types/schema';
 import { joinRoom } from '@/lib/storage';
 import { type InsertablePlayer } from '@/lib/db';
 
-export const runtime = 'edge';
-
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: Request) {
   try {
-    const { player } = await request.json() as { player: InsertablePlayer };
-    const room = await joinRoom(params.id, player);
-    return NextResponse.json(room);
-  } catch (error) {
-    console.error('Error joining room:', error);
-    return NextResponse.json(
-      { error: 'Failed to join room' },
-      { status: 500 }
-    );
+    const matches = request.url.match(/\/rooms\/([^\/]+)\/join/);
+    const id = matches?.[1];
+    if (!id) {
+      return new Response('Invalid room ID', { status: 400 });
+    }
+
+    const { name, emoji } = await request.json() as Pick<Player, 'name' | 'emoji'>;
+    
+    const insertablePlayer: InsertablePlayer = {
+      name,
+      emoji,
+      room_id: id,
+      is_host: false,
+      is_ready: false,
+    };
+
+    const room = await joinRoom(id, insertablePlayer);
+    return Response.json(room);
+  } catch {
+    return new Response('Failed to join room', { status: 500 });
   }
 }

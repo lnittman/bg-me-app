@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
 
   return (
     <DropdownMenu>
@@ -38,4 +38,4 @@ export function ThemeSwitcher() {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-}
+} 
