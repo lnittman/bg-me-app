@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth.js / NextAuth.js models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  rooms         Room[]    @relation("CreatedRooms")
+  players       Player[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_token     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Game models
+model Room {
+  id          String    @id @default(cuid())
+  creatorId   String
+  creator     User      @relation("CreatedRooms", fields: [creatorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  status      String    @default("waiting")
+  gameState   Json?
+  readyStates Json      @default("{}")
+  players     Player[]
+  messages    Message[]
+
+  @@index([creatorId])
+  @@index([status])
+}
+
+model Player {
+  id          String    @id @default(cuid())
+  roomId      String
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  name        String
+  emoji       String
+  color       String?
+  isSpectator Boolean   @default(false)
+  isReady     Boolean   @default(false)
+  joinedAt    DateTime  @default(now())
+  messages    Message[]
+
+  @@index([roomId])
+  @@index([userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  text      String
+  timestamp DateTime @default(now())
+
+  @@index([roomId])
+  @@index([playerId])
+}
+
+model RateLimit {
+  id      String   @id @default(cuid())
+  key     String   @unique
+  tokens  Int
+  expires DateTime
+
+  @@index([key])
+  @@index([expires])
+} 

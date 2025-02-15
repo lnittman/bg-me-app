@@ -1,94 +1,100 @@
-import { neon, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import * as schema from './schema';
-import { type GameState } from '@/lib/shared/schema';
+import { createKysely } from "@vercel/postgres-kysely";
+import { type Database } from "./types";
+import { prisma } from "./prisma";
 
-neonConfig.fetchConnectionCache = true;
+// Keep Kysely instance for edge functions
+export const db = createKysely<Database>();
 
-const sql = neon(process.env.POSTGRES_URL!);
-export const db = drizzle(sql, { schema });
-
-// Helper function to get a room with its players and messages
+// Helper function to get a room with its relations
 export async function getRoomWithRelations(roomId: string) {
-  const room = await db.query.rooms.findFirst({
-    where: (rooms, { eq }) => eq(rooms.id, roomId),
-    with: {
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    include: {
       players: true,
       messages: {
-        orderBy: (messages, { asc }) => [asc(messages.timestamp)],
-        limit: 100,
-      },
-    },
+        orderBy: { timestamp: 'asc' },
+        take: 100
+      }
+    }
   });
+
+  if (!room) return null;
 
   return room;
 }
 
-// Helper function to create a new room
-export async function createRoom(creatorId: string) {
-  const [room] = await db
-    .insert(schema.rooms)
-    .values({
-      id: crypto.randomUUID(),
-      creatorId,
-    })
-    .returning();
-
-  return room;
+// Helper function to create a room
+export async function createRoom(data: any) {
+  return prisma.room.create({
+    data: {
+      ...data,
+      players: {
+        create: data.players
+      }
+    },
+    include: {
+      players: true,
+      messages: true
+    }
+  });
 }
 
 // Helper function to add a player to a room
-export async function addPlayerToRoom(roomId: string, player: schema.NewPlayer) {
-  const [newPlayer] = await db
-    .insert(schema.players)
-    .values(player)
-    .returning();
-
-  return newPlayer;
+export async function addPlayerToRoom(roomId: string, playerData: any) {
+  return prisma.player.create({
+    data: {
+      ...playerData,
+      roomId
+    },
+    include: {
+      room: {
+        include: {
+          players: true,
+          messages: true
+        }
+      }
+    }
+  });
 }
 
 // Helper function to update game state
-export async function updateGameState(roomId: string, gameState: GameState) {
-  const [updatedRoom] = await db
-    .update(schema.rooms)
-    .set({
-      gameState,
-      updatedAt: new Date(),
-    })
-    .where(({ id }) => id.equals(roomId))
-    .returning();
-
-  return updatedRoom;
+export async function updateGameState(roomId: string, gameState: any) {
+  return prisma.room.update({
+    where: { id: roomId },
+    data: { gameState },
+    include: {
+      players: true,
+      messages: true
+    }
+  });
 }
 
 // Helper function to add a message
-export async function addMessage(message: schema.NewMessage) {
-  const [newMessage] = await db
-    .insert(schema.messages)
-    .values(message)
-    .returning();
-
-  return newMessage;
+export async function addMessage(roomId: string, playerId: string, text: string) {
+  return prisma.message.create({
+    data: {
+      roomId,
+      playerId,
+      text
+    },
+    include: {
+      player: true
+    }
+  });
 }
 
-// Helper function to update ready states
+// Helper function to update ready state
 export async function updateReadyState(roomId: string, playerId: string, isReady: boolean) {
-  const room = await db.query.rooms.findFirst({
-    where: (rooms, { eq }) => eq(rooms.id, roomId),
+  return prisma.player.update({
+    where: { id: playerId },
+    data: { isReady },
+    include: {
+      room: {
+        include: {
+          players: true,
+          messages: true
+        }
+      }
+    }
   });
-
-  if (!room) throw new Error('Room not found');
-
-  const readyStates = { ...room.readyStates, [playerId]: isReady };
-
-  const [updatedRoom] = await db
-    .update(schema.rooms)
-    .set({
-      readyStates,
-      updatedAt: new Date(),
-    })
-    .where(({ id }) => id.equals(roomId))
-    .returning();
-
-  return updatedRoom;
 } 

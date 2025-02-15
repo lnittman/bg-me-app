@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core';
 import { type GameState, type Player } from '@shared/schema';
+import { sql } from 'drizzle-orm';
 
 export const rooms = pgTable('rooms', {
   id: text('id').primaryKey(),
@@ -34,6 +35,49 @@ export const ratelimits = pgTable('ratelimits', {
   tokens: integer('tokens').notNull(),
   expires: timestamp('expires').notNull(),
 });
+
+// Auth.js / NextAuth.js tables
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  image: text('image'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const accounts = pgTable('accounts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('provider_account_id').notNull(),
+  refreshToken: text('refresh_token'),
+  accessToken: text('access_token'),
+  expiresAt: integer('expires_at'),
+  tokenType: text('token_type'),
+  scope: text('scope'),
+  idToken: text('id_token'),
+  sessionToken: text('session_token'),
+});
+
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  sessionToken: text('session_token').notNull().unique(),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
+
+export const verificationTokens = pgTable('verification_tokens', {
+  identifier: text('identifier').notNull(),
+  token: text('token').notNull(),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+},
+(vt) => ({
+  compoundKey: sql`PRIMARY KEY (${vt.identifier}, ${vt.token})`,
+}));
 
 // Types
 export type Room = typeof rooms.$inferSelect;

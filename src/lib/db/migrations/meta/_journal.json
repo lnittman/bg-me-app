@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1708025400000,
+      "tag": "0001_auth_tables",
+      "breakpoints": true
+    }
+  ]
+} 
