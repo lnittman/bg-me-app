@@ -42,7 +42,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-4">
+    <div className="flex min-h-[calc(100vh-var(--header-height)-2rem)] flex-col items-center justify-center gap-4 p-4">
       <div className="w-full max-w-sm space-y-4 text-center">
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight lowercase">

@@ -2,6 +2,7 @@ import './globals.css';
 import { Header } from '@/components/ui/header';
 import { type Metadata, type Viewport } from 'next';
 import { Providers } from '@/components/providers';
+import { ThemeEffect } from '@/components/theme-effect';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -9,10 +10,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' }
-  ],
 };
 
 export const metadata: Metadata = {
@@ -42,9 +39,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <meta name="theme-color" content="#09090b" />
+      </head>
       <body className="bg-background font-['IosevkaTerm'] antialiased overscroll-none">
         <Providers>
+          <ThemeEffect />
           <div className="h-[100dvh] flex flex-col">
             <Header />
             <main className="flex-1 flex items-center justify-center">

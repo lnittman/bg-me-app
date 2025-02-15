@@ -10,17 +10,21 @@ export default function Home() {
     <LayoutWithTransitions>
       <div className="w-full max-w-[var(--content-width)] mx-auto px-4 space-y-8">
         {/* Video Card */}
-        <Card className="w-full max-w-md mx-auto overflow-hidden aspect-video">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/videos/hero-loop.mp4" type="video/mp4" />
-          </video>
-        </Card>
+        <div className="w-full max-w-md mx-auto">
+          <div className="relative aspect-video">
+            <Card className="absolute inset-0 overflow-hidden">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              >
+                <source src="/videos/hero-loop.mp4" type="video/mp4" />
+              </video>
+            </Card>
+          </div>
+        </div>
 
         {/* Content */}
         <div className="w-full max-w-md mx-auto space-y-6">
