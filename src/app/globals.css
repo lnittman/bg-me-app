@@ -1,0 +1,119 @@
+@tailwind base;
+
+@custom-variant dark (&:is(.dark *));
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: rgb(0 0% 100%);
+    --foreground: rgb(222 84% 4.9%);
+
+    --card: rgb(0 0% 100%);
+    --card-foreground: rgb(222 84% 4.9%);
+
+    --popover: rgb(0 0% 100%);
+    --popover-foreground: rgb(222 84% 4.9%);
+
+    --primary: rgb(222 47.4% 11.2%);
+    --primary-foreground: rgb(210 40% 98%);
+
+    --secondary: rgb(210 40% 96.1%);
+    --secondary-foreground: rgb(222 47.4% 11.2%);
+
+    --muted: rgb(210 40% 96.1%);
+    --muted-foreground: rgb(215 16.3% 46.9%);
+
+    --accent: rgb(210 40% 96.1%);
+    --accent-foreground: rgb(222 47.4% 11.2%);
+
+    --destructive: rgb(0 84.2% 60.2%);
+    --destructive-foreground: rgb(210 40% 98%);
+
+    --border: rgb(214 31.8% 91.4%);
+    --input: rgb(214 31.8% 91.4%);
+    --ring: rgb(222 84% 4.9%);
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: rgb(222 84% 4.9%);
+    --foreground: rgb(210 40% 98%);
+
+    --card: rgb(222 84% 4.9%);
+    --card-foreground: rgb(210 40% 98%);
+
+    --popover: rgb(222 84% 4.9%);
+    --popover-foreground: rgb(210 40% 98%);
+
+    --primary: rgb(210 40% 98%);
+    --primary-foreground: rgb(222 47.4% 11.2%);
+
+    --secondary: rgb(217 32.6% 17.5%);
+    --secondary-foreground: rgb(210 40% 98%);
+
+    --muted: rgb(217 32.6% 17.5%);
+    --muted-foreground: rgb(215 20.2% 65.1%);
+
+    --accent: rgb(217 32.6% 17.5%);
+    --accent-foreground: rgb(210 40% 98%);
+
+    --destructive: rgb(0 62.8% 30.6%);
+    --destructive-foreground: rgb(210 40% 98%);
+
+    --border: rgb(217 32.6% 17.5%);
+    --input: rgb(217 32.6% 17.5%);
+    --ring: rgb(212 26.8% 83.9%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animate-flow-text span {
+    @apply inline-block opacity-0;
+    animation: flow-up 0.5s ease forwards;
+    animation-delay: var(--flow-delay, 0s);
+  }
+
+  .animate-bounce-slow {
+    animation: bounce 2s ease-in-out infinite;
+  }
+}
+
+@keyframes flow-up {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
