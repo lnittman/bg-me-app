@@ -11,26 +11,19 @@ export default function AuthLayout({
   const pathname = usePathname();
 
   return (
-    <div className="w-full">
-      <div className="relative w-full">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={pathname}
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: 1,
-              transition: { duration: 0.2 }
-            }}
-            exit={{ 
-              opacity: 0,
-              transition: { duration: 0.15 }
-            }}
-            className="w-full absolute left-0 right-0"
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+    <div className="w-full min-h-[calc(100vh-var(--header-height)-2rem)] relative">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15, ease: "easeInOut" }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 } 
