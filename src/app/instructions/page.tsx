@@ -49,7 +49,7 @@ export default function Instructions() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="max-w-3xl mx-auto px-9">
+      <div className="max-w-3xl mx-auto px-9 pt-[calc(var(--header-height)+2rem)]">
         <div className="space-y-8">
           <div className="flex flex-col items-center">
             <h1 className="text-2xl font-bold lowercase">instructions</h1>

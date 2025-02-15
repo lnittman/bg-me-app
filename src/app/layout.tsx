@@ -31,6 +31,8 @@ export const metadata = {
     capable: true,
     statusBarStyle: 'default',
     title: 'bg.me',
+    statusBarStyleDark: 'black-translucent',
+    statusBarStyleLight: 'default',
   },
 };
 
