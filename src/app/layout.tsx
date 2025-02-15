@@ -6,6 +6,32 @@ import { Toaster } from 'sonner';
 export const metadata = {
   title: 'bg.me',
   description: 'play backgammon with anyone, anywhere',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' }
+  ],
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'bg.me',
+  },
 };
 
 export default function RootLayout({
@@ -16,19 +42,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className="bg-background font-['IosevkaTerm'] antialiased">
+      <body className="bg-background font-['IosevkaTerm'] antialiased overscroll-none">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex flex-col">
+          <div className="h-[100dvh] flex flex-col">
             <Header />
             <main className="flex-1 flex items-center justify-center">
-              <div className="w-full max-w-[var(--content-width)] mx-auto px-4">
-                {children}
-              </div>
+              {children}
             </main>
           </div>
           <Toaster />

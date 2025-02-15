@@ -6,17 +6,12 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { type Player } from "@shared/schema";
 
 interface Message {
   playerId: string;
   text: string;
   timestamp: number;
-}
-
-interface Player {
-  id: string;
-  name: string;
-  emoji: string;
 }
 
 interface ChatProps {

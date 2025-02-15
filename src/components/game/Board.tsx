@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { type GameState } from "@/lib/types";
+import { type GameState } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getPlayerBoard } from "@/lib/gameLogic";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface BoardProps {
@@ -28,7 +29,7 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
     }
   };
 
-  const playerBoard = currentPlayer === "white" ? gameState.board : [...gameState.board].reverse();
+  const playerBoard = getPlayerBoard(gameState.board, currentPlayer === "white");
 
   return (
     <div className="relative w-full h-full flex flex-col gap-4">

@@ -13,7 +13,7 @@ export function Header() {
             <ThemeEmoji size="sm" />
             <Link 
               href="/" 
-              className="text-lg font-medium lowercase tracking-tight hover:text-primary/90 transition-colors"
+              className="text-lg font-medium lowercase tracking-tight hover:text-primary/90 transition-colors cursor-pointer"
             >
               bg.me
             </Link>

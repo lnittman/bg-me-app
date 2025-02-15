@@ -7,8 +7,8 @@ export default function Home() {
   const text = "anyone, anywhere".split("")
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background overflow-hidden">
-      <Card className="w-full max-w-md mx-4">
+    <div className="w-full max-w-[var(--content-width)] mx-auto px-4">
+      <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center space-y-6">
           <ThemeEmoji size="lg" />
           <div className="text-muted-foreground lowercase text-lg flex flex-col">
@@ -42,7 +42,7 @@ export default function Home() {
             className="w-full lowercase"
             asChild
           >
-            <Link href="/instructions">learn</Link>
+            <Link href="/instructions">read instructions</Link>
           </Button>
         </CardContent>
       </Card>

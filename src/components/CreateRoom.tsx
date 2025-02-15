@@ -1,25 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { useGameStore } from '@/store/game';
 import { type Player } from '@/types/schema';
+import PlayerEditForm from '@/components/game/PlayerEditForm';
 
 export function CreateRoom() {
-  const [name, setName] = useState('');
   const router = useRouter();
   const setCurrentPlayer = useGameStore(state => state.setCurrentPlayer);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
+  const handleSubmit = async (name: string, emoji: string) => {
     const player: Player = {
       id: Math.random().toString(36).substring(2, 9),
-      name: name.trim(),
-      emoji: '🎲',
+      name,
+      emoji,
       joinedAt: Date.now(),
       isReady: false,
       color: 'white',
@@ -30,16 +24,13 @@ export function CreateRoom() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-          required
-        />
-      </div>
-      <Button type="submit">Create Room</Button>
-    </form>
+    <div className="w-full max-w-md p-6 space-y-4">
+      <h1 className="text-2xl font-bold text-center lowercase">create a room</h1>
+      <PlayerEditForm 
+        onSubmit={handleSubmit}
+        showCancel={false}
+        submitLabel="create room"
+      />
+    </div>
   );
 }

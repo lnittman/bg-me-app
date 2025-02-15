@@ -1,17 +1,29 @@
 const adjectives = [
-  'happy', 'lucky', 'sunny', 'clever', 'gentle', 'brave', 'bright', 'swift',
-  'calm', 'kind', 'wise', 'bold', 'proud', 'neat', 'warm', 'cool',
-  'eager', 'fair', 'nice', 'pure', 'sweet', 'wild', 'young', 'zesty'
+  "autumn", "hidden", "bitter", "misty", "silent", "empty", "dry", "dark",
+  "summer", "icy", "delicate", "quiet", "white", "cool", "spring", "winter",
+  "patient", "twilight", "dawn", "crimson", "wispy", "weathered", "blue",
+  "billowing", "broken", "cold", "damp", "falling", "frosty", "green",
+  "long", "late", "lingering", "bold", "little", "morning", "muddy", "old",
+  "red", "rough", "still", "small", "sparkling", "throbbing", "shy",
+  "wandering", "withered", "wild", "black", "young", "holy", "solitary",
+  "fragrant", "aged", "snowy", "proud", "floral", "restless", "divine",
+  "polished", "ancient", "purple", "lively", "nameless"
 ];
 
 const nouns = [
-  'panda', 'tiger', 'eagle', 'dolphin', 'koala', 'lion', 'wolf', 'bear',
-  'fox', 'owl', 'hawk', 'deer', 'seal', 'cat', 'dog', 'bird',
-  'fish', 'duck', 'frog', 'goat', 'horse', 'mouse', 'rabbit', 'sheep'
+  "waterfall", "river", "breeze", "moon", "rain", "wind", "sea", "morning",
+  "snow", "lake", "sunset", "pine", "shadow", "leaf", "dawn", "glitter",
+  "forest", "hill", "cloud", "meadow", "sun", "glade", "bird", "brook",
+  "butterfly", "bush", "dew", "dust", "field", "fire", "flower", "firefly",
+  "feather", "grass", "haze", "mountain", "night", "pond", "darkness",
+  "snowflake", "silence", "sound", "sky", "shape", "surf", "thunder",
+  "violet", "water", "wildflower", "wave", "water", "resonance", "sun",
+  "wood", "dream", "cherry", "tree", "fog", "frost", "voice", "paper",
+  "frog", "smoke", "star"
 ];
 
 export function generateFriendlyName(): string {
   const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
   const noun = nouns[Math.floor(Math.random() * nouns.length)];
-  return `${adjective} ${noun}`;
+  return `${adjective}-${noun}`;
 } 

@@ -1,51 +1,47 @@
-import { sql } from '@vercel/postgres';
-import { type Generated, type Insertable, type Selectable, type Updateable } from 'kysely';
+import { pgTable, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core';
+import { type GameState, type Player } from '@shared/schema';
 
-export interface Database {
-  rooms: RoomTable;
-  players: PlayerTable;
-  messages: MessageTable;
-}
+export const rooms = pgTable('rooms', {
+  id: text('id').primaryKey(),
+  creatorId: text('creator_id').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  gameState: jsonb('game_state').$type<GameState | null>().default(null),
+  readyStates: jsonb('ready_states').$type<Record<string, boolean>>().default({}),
+});
 
-export interface RoomTable {
-  id: Generated<string>;
-  created_at: Generated<Date>;
-  updated_at: Generated<Date>;
-  game_state: string;
-  status: 'waiting' | 'playing' | 'finished';
-}
+export const players = pgTable('players', {
+  id: text('id').primaryKey(),
+  roomId: text('room_id').references(() => rooms.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),
+  emoji: text('emoji').notNull(),
+  isSpectator: boolean('is_spectator').default(false).notNull(),
+  joinedAt: timestamp('joined_at').defaultNow().notNull(),
+});
 
-export interface PlayerTable {
-  id: Generated<string>;
-  created_at: Generated<Date>;
-  updated_at: Generated<Date>;
-  room_id: string;
-  name: string;
-  emoji: string;
-  color: 'white' | 'black' | null;
-  is_host: boolean;
-  is_ready: boolean;
-}
+export const messages = pgTable('messages', {
+  id: text('id').primaryKey(),
+  roomId: text('room_id').references(() => rooms.id, { onDelete: 'cascade' }).notNull(),
+  playerId: text('player_id').references(() => players.id, { onDelete: 'cascade' }).notNull(),
+  text: text('text').notNull(),
+  timestamp: timestamp('timestamp').defaultNow().notNull(),
+});
 
-export interface MessageTable {
-  id: Generated<string>;
-  created_at: Generated<Date>;
-  room_id: string;
-  player_id: string;
-  content: string;
-}
+// For rate limiting and session management
+export const ratelimits = pgTable('ratelimits', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull(),
+  tokens: integer('tokens').notNull(),
+  expires: timestamp('expires').notNull(),
+});
 
-export type Room = Selectable<RoomTable>;
-export type InsertableRoom = Insertable<RoomTable>;
-export type UpdateableRoom = Updateable<RoomTable>;
-
-export type Player = Selectable<PlayerTable>;
-export type InsertablePlayer = Insertable<PlayerTable>;
-export type UpdateablePlayer = Updateable<PlayerTable>;
-
-export type Message = Selectable<MessageTable>;
-export type InsertableMessage = Insertable<MessageTable>;
-export type UpdateableMessage = Updateable<MessageTable>;
+// Types
+export type Room = typeof rooms.$inferSelect;
+export type NewRoom = typeof rooms.$inferInsert;
+export type Player = typeof players.$inferSelect;
+export type NewPlayer = typeof players.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;
 
 // Create tables if they don't exist
 export async function createTables() {

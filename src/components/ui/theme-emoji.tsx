@@ -17,7 +17,7 @@ export function ThemeEmoji({ size = "sm" }: ThemeEmojiProps) {
   }
 
   return (
-    <div className={`relative flex items-center justify-center ${size === "lg" ? "h-16" : "h-6"}`}>
+    <div className={`relative flex items-center justify-center cursor-pointer ${size === "lg" ? "h-16" : "h-6"}`}>
       <AnimatePresence mode="wait">
         <motion.span
           key={isDark ? "light" : "dark"}

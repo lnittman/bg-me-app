@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Link2Icon } from "@radix-ui/react-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { type Player } from "@/types/schema";
-import { toast } from "sonner";
+import { type Player } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 interface MatchProps {
   roomId: string;
@@ -29,18 +29,22 @@ export default function Match({
   readyStates,
 }: MatchProps) {
   const [countdown, setCountdown] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const roomUrl = `${window.location.origin}/game/${roomId}`;
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(roomUrl);
-      toast("Link copied to clipboard", {
-        description: "Share it with your friends to play together",
+      toast({
+        title: "link copied",
+        description: "share it with your friends to play together",
       });
     } catch {
-      toast("Couldn't copy link", {
-        description: "Please try copying manually",
+      toast({
+        variant: "destructive",
+        title: "couldn't copy link",
+        description: "please try copying manually",
       });
     }
   };
