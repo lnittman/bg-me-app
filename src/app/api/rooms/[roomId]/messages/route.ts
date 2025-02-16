@@ -4,7 +4,7 @@ import { addMessage } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 import { type Message } from '@/lib/shared/schema';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // Get chat messages
 export async function GET(

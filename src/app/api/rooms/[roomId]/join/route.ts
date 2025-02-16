@@ -4,7 +4,7 @@ import { addPlayerToRoom } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 import { type Player } from '@/lib/shared/schema';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 type Context = {
   params: {

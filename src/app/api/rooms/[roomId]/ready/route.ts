@@ -3,7 +3,7 @@ import { cache } from '@/lib/vercel';
 import { updateReadyState } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(
   request: Request,

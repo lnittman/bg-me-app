@@ -1,20 +1,42 @@
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import Link from "next/link"
+import { Icon } from "@/components/ui/icon"
+import { Button } from "@/components/ui/button"
 
 export default function BlogPost() {
   return (
-    <div className="w-full max-w-[var(--content-width)] mx-auto px-4">
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+    <>
+      {/* Fixed control row */}
+      <div className="fixed top-[calc(var(--header-height)+1rem)] left-0 right-0 z-10 px-4">
+        <div className="w-[calc(100vw-2rem)] max-w-[calc(var(--content-width)+2rem)] mx-auto flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild
+            className="gap-2 w-[140px]"
+          >
+            <Link href="/blog">
+              <Icon name="ArrowLeft" className="h-4 w-4" />
+              <span className="lowercase">back to blog</span>
+            </Link>
+          </Button>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>march 15, 2024</span>
             <span>•</span>
             <span>3 min read</span>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight lowercase">
+        </div>
+      </div>
+
+      {/* Main content */}
+      <article className="pt-[calc(var(--header-height)+4rem)] space-y-12 px-4">
+        <header className="space-y-8">
+          <h1 className="text-3xl font-semibold tracking-tight lowercase text-center max-w-2xl mx-auto">
             bringing backgammon to the modern web
           </h1>
-        </CardHeader>
-        <CardContent className="space-y-6 text-muted-foreground">
+        </header>
+
+        <div className="space-y-6 text-muted-foreground max-w-2xl mx-auto">
           <p>
             backgammon has been bringing people together for over 5,000 years, making it one of the oldest known board games. 
             despite its rich history and enduring appeal, finding a good place to play online hasn't always been easy.
@@ -46,8 +68,22 @@ export default function BlogPost() {
             backgammon online even more enjoyable. we hope you'll join us on this journey and help shape the future of 
             online backgammon.
           </p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        <div className="flex justify-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            asChild
+            className="gap-2 w-[140px]"
+          >
+            <Link href="/blog">
+              <Icon name="ArrowLeft" className="h-4 w-4" />
+              <span className="lowercase">back to blog</span>
+            </Link>
+          </Button>
+        </div>
+      </article>
+    </>
   )
 } 

@@ -7,7 +7,7 @@ import { INITIAL_BOARD } from '@/lib/gameLogic';
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db/prisma";
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST() {
   try {

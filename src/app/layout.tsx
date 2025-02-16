@@ -3,6 +3,7 @@ import { Header } from '@/components/ui/header';
 import { type Metadata, type Viewport } from 'next';
 import { Providers } from '@/components/providers';
 import { ThemeEffect } from '@/components/theme-effect';
+import { Toaster } from '@/components/ui/sonner';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -42,7 +43,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#09090b" />
       </head>
-      <body className="bg-background font-['IosevkaTerm'] antialiased overscroll-none">
+      <body className="bg-background antialiased overscroll-none">
         <Providers>
           <ThemeEffect />
           <div className="h-[100dvh] flex flex-col">
@@ -51,6 +52,7 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+          <Toaster />
         </Providers>
       </body>
     </html>

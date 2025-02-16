@@ -3,11 +3,8 @@
 import Link from "next/link"
 import { ThemeSwitcher } from "@/components/ui/theme-switcher"
 import { ThemeEmoji } from "@/components/ui/theme-emoji"
-import { Button } from "@/components/ui/button"
 import { useSession } from "next-auth/react"
-import { FriendRequests } from "@/components/FriendRequests"
 import { NotificationBell } from "@/components/NotificationBell"
-import { Icon } from "@/components/ui/icon"
 
 export function Header() {
   const { data: session } = useSession()
@@ -28,22 +25,7 @@ export function Header() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            {!session ? (
-              <Button variant="outline" size="sm" className="lowercase" asChild>
-                <Link href="/auth/signin">sign in</Link>
-              </Button>
-            ) : (
-              <>
-                <FriendRequests />
-                <Button variant="outline" size="sm" className="lowercase" asChild>
-                  <Link href="/room" className="flex items-center gap-2">
-                    <Icon name="GameController" className="h-4 w-4" />
-                    <span>my games</span>
-                  </Link>
-                </Button>
-                <NotificationBell />
-              </>
-            )}
+            {session && <NotificationBell />}
             <ThemeSwitcher />
           </div>
         </div>

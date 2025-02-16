@@ -13,6 +13,13 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000'],
     },
+    serverExternalPackages: ['next-auth'],
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+    return config;
   },
   images: {
     remotePatterns: [
@@ -21,6 +28,20 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+  },
+  // Add runtime configuration for auth routes
+  async headers() {
+    return [
+      {
+        source: '/api/auth/:path*',
+        headers: [
+          {
+            key: 'x-middleware-prefetch',
+            value: 'spec-compliant',
+          },
+        ],
+      },
+    ];
   },
 };
 

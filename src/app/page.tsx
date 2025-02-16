@@ -1,9 +1,14 @@
+"use client"
+
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import LayoutWithTransitions from "./layout-with-transitions"
+import { useSession } from "next-auth/react"
+import { Icon } from "@/components/ui/icon"
 
 export default function Home() {
+  const { data: session } = useSession()
   const text = "anyone, anywhere".split("")
 
   return (
@@ -54,7 +59,11 @@ export default function Home() {
               className="w-full lowercase"
               asChild
             >
-              <Link href="/auth/signin">sign in to play</Link>
+              {session ? (
+                <Link href="/room">find game</Link>
+              ) : (
+                <Link href="/auth/signin">sign in to play</Link>
+              )}
             </Button>
             <Button 
               variant="secondary" 
