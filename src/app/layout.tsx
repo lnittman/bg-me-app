@@ -4,6 +4,7 @@ import { type Metadata, type Viewport } from 'next';
 import { Providers } from '@/components/providers';
 import { ThemeEffect } from '@/components/theme-effect';
 import { Toaster } from '@/components/ui/sonner';
+import { NotificationBell } from '@/components/NotificationBell';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -52,6 +53,7 @@ export default function RootLayout({
               {children}
             </main>
           </div>
+          <NotificationBell />
           <Toaster />
         </Providers>
       </body>

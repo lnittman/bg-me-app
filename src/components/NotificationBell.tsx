@@ -5,12 +5,13 @@ import { Icon } from "@/components/ui/icon";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/hooks/useNotifications";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 function NotificationItem({ 
   notification, 
@@ -35,9 +36,9 @@ function NotificationItem({
     >
       <div className="flex items-start gap-4">
         <div className="flex-1">
-          <p className="font-medium">{notification.title}</p>
-          <p className="text-sm text-muted-foreground">{notification.message}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="font-medium lowercase">{notification.title}</p>
+          <p className="text-sm text-muted-foreground lowercase">{notification.message}</p>
+          <p className="text-xs text-muted-foreground mt-1 lowercase">
             {new Date(notification.createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -50,58 +51,68 @@ function NotificationItem({
 }
 
 export function NotificationBell() {
+  const { data: session } = useSession();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
+  if (!session) return null;
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          aria-label="Notifications"
+    <div className="fixed bottom-4 right-4 z-50">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-9 w-9 rounded-lg bg-card border shadow-sm"
+          >
+            <Icon name="Bell" className="h-5 w-5 transition-colors" />
+            {unreadCount > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 min-w-[18px] h-[18px] p-0 flex items-center justify-center text-xs"
+              >
+                {unreadCount}
+              </Badge>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          align="end" 
+          alignOffset={0}
+          sideOffset={8} 
+          className="w-80"
+          side="top"
         >
-          <Icon name="Bell" className="w-5 h-5 transition-colors" />
-          {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 min-w-[18px] h-[18px] p-0 flex items-center justify-center text-xs"
-            >
-              {unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h4 className="font-medium">Notifications</h4>
-          {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={markAllAsRead}
-              className="text-xs"
-            >
-              Mark all as read
-            </Button>
-          )}
-        </div>
-        <ScrollArea className="h-[400px]">
-          {notifications.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              No notifications
-            </div>
-          ) : (
-            notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onRead={markAsRead}
-              />
-            ))
-          )}
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
+          <div className="flex items-center justify-between p-4 border-b">
+            <h4 className="font-medium lowercase">notifications</h4>
+            {unreadCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={markAllAsRead}
+                className="text-xs lowercase"
+              >
+                mark all as read
+              </Button>
+            )}
+          </div>
+          <ScrollArea className="h-[400px]">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-sm text-muted-foreground lowercase">
+                no notifications
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onRead={markAsRead}
+                />
+              ))
+            )}
+          </ScrollArea>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 } 
