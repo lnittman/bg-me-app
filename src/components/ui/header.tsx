@@ -2,9 +2,8 @@
 
 import Link from "next/link"
 import { ThemeEmoji } from "@/components/ui/theme-emoji"
-import { useSession } from "next-auth/react"
+import { useUser, useAuth } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +16,8 @@ import { cn } from "@/lib/utils"
 import { useTheme } from "next-themes"
 
 export function Header() {
-  const { data: session } = useSession()
+  const { user } = useUser()
+  const { signOut } = useAuth()
   const { setTheme } = useTheme()
 
   return (
@@ -44,8 +44,8 @@ export function Header() {
                   className="relative h-9 w-9 rounded-lg"
                 >
                   <div className="h-full w-full rounded-lg bg-muted/50 flex items-center justify-center text-lg transition-colors hover:bg-muted">
-                    {session ? (
-                      session.user.emoji || "👤"
+                    {user ? (
+                      (user as any).emoji || "👤"
                     ) : (
                       <Icon name="List" className="h-5 w-5" />
                     )}
@@ -72,19 +72,19 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
 
-                {session && (
+                {user && (
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${session.user.id}`} className="flex items-center justify-between gap-2">
+                    <Link href={`/profile/${user.id}`} className="flex items-center justify-between gap-2">
                       <span>profile</span>
                       <Icon name="UserCircle" className="h-4 w-4" />
                     </Link>
                   </DropdownMenuItem>
                 )}
 
-                {session && (
+                {user && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onSelect={() => signOut()}
                     >
                       <div className="flex items-center justify-between w-full text-red-500 dark:text-red-400">

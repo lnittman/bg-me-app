@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -31,19 +31,19 @@ interface Room {
 }
 
 export default function RoomPage() {
-  const { data: session, status } = useSession();
+  const { user } = useUser();
   const router = useRouter();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!user) {
       router.push("/auth/signin");
     }
-  }, [status, router]);
+  }, [user, router]);
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (user?.id) {
       // Fetch friends
       fetch("/api/friends")
         .then((res) => res.json())
@@ -54,9 +54,9 @@ export default function RoomPage() {
         .then((res) => res.json())
         .then((data) => setRooms(data));
     }
-  }, [session?.user?.id]);
+  }, [user?.id]);
 
-  if (status === "loading" || !session) {
+  if (!user) {
     return null;
   }
 

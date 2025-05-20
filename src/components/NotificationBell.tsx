@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 
 function NotificationItem({ 
   notification, 
@@ -51,10 +51,10 @@ function NotificationItem({
 }
 
 export function NotificationBell() {
-  const { data: session } = useSession();
+  const { user } = useUser();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
-  if (!session) return null;
+  if (!user) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50">

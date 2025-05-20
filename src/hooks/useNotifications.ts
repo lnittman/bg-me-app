@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 
 type Notification = {
   id: string;
@@ -12,16 +12,16 @@ type Notification = {
 };
 
 export function useNotifications() {
-  const { data: session } = useSession();
+  const { user } = useUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (user?.id) {
       fetchNotifications();
     }
-  }, [session?.user?.id]);
+  }, [user?.id]);
 
   const fetchNotifications = async () => {
     try {

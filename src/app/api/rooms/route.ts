@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { cache, blob, config } from '@/lib/vercel';
 import { ratelimit } from '@/lib/ratelimit';
 import { INITIAL_BOARD } from '@/lib/gameLogic';
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 
 export const runtime = 'nodejs';
@@ -68,15 +68,15 @@ export async function POST() {
 }
 
 export async function GET() {
-  const session = await getServerSession();
+  const { userId } = auth();
 
-  if (!session?.user?.email) {
+  if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   // Get the current user
   const currentUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: userId },
   });
 
   if (!currentUser) {
