@@ -3,6 +3,7 @@ import { type Server as HTTPServer } from 'http';
 import { kv } from '@vercel/kv';
 import { updateGameState, addMessage, updateReadyState } from './db';
 import { type GameState, type Message } from './shared/schema';
+import { isValidMove, makeMove, rollDice } from './gameLogic';
 import { ratelimit } from './ratelimit';
 
 export const initSocket = (server: HTTPServer) => {
@@ -33,29 +34,43 @@ export const initSocket = (server: HTTPServer) => {
       }
     });
 
-    socket.on('move', async ({ roomId, gameState }: { roomId: string; gameState: GameState }) => {
+    socket.on('move', async ({ roomId, from, to }: { roomId: string; from: number; to: number }) => {
       try {
-        // Rate limit moves
         const { success } = await ratelimit.move.limit(socket.id);
         if (!success) {
           socket.emit('error', 'Too many moves');
           return;
         }
 
-        // Update game state in database
-        await updateGameState(roomId, gameState);
-
-        // Update KV store
-        const room = await kv.get(`room:${roomId}`);
-        if (room) {
-          await kv.set(`room:${roomId}`, {
-            ...room,
-            gameState,
-          });
+        const room = await kv.get<any>(`room:${roomId}`);
+        if (!room || !room.gameState) {
+          socket.emit('error', 'Room not found');
+          return;
         }
 
-        // Broadcast new state to room
-        io.to(roomId).emit('gameState', gameState);
+        const { board, dice, turn } = room.gameState as GameState;
+        if (!isValidMove(board, from, to, turn, dice)) {
+          socket.emit('error', 'Invalid move');
+          return;
+        }
+
+        const newBoard = makeMove(board, from, to);
+        const distance = Math.abs(to - from);
+        const dieIndex = dice.indexOf(distance);
+        if (dieIndex !== -1) dice.splice(dieIndex, 1);
+
+        let nextTurn = turn;
+        if (dice.length === 0) {
+          nextTurn = turn === 'white' ? 'black' : 'white';
+          dice.push(...rollDice());
+        }
+
+        const newState: GameState = { ...room.gameState, board: newBoard, dice, turn: nextTurn };
+        await updateGameState(roomId, newState);
+
+        await kv.set(`room:${roomId}`, { ...room, gameState: newState });
+
+        io.to(roomId).emit('gameState', newState);
       } catch (error) {
         console.error('Error processing move:', error);
         socket.emit('error', 'Error processing move');
