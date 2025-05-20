@@ -1,16 +1,15 @@
-import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import { markNotificationAsRead } from "@/lib/notifications";
 import { prisma } from "@/lib/db/prisma";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const { userId } = auth();
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -23,7 +22,7 @@ export async function POST(
       return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
 
-    if (notification.userId !== session.user.id) {
+    if (notification.userId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

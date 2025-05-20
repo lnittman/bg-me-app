@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import { createFriendRequestNotification, createFriendRequestAcceptedNotification } from "@/lib/notifications";
 
 export async function GET() {
-  const session = await getServerSession();
+  const { userId } = auth();
 
-  if (!session?.user?.email) {
+  if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   // Get the current user
   const currentUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: userId },
   });
 
   if (!currentUser) {
@@ -48,9 +48,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
+  const { userId } = auth();
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     const existingRequest = await prisma.friendRequest.findUnique({
       where: {
         senderId_receiverId: {
-          senderId: session.user.id,
+          senderId: userId,
           receiverId: recipient.id,
         },
       },
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     // Create the friend request
     const friendRequest = await prisma.friendRequest.create({
       data: {
-        senderId: session.user.id,
+        senderId: userId,
         receiverId: recipient.id,
       },
     });
@@ -91,8 +91,8 @@ export async function POST(request: Request) {
     // Create a notification for the recipient
     await createFriendRequestNotification({
       recipientId: recipient.id,
-      senderName: session.user.name || "Someone",
-      senderEmail: session.user.email!,
+      senderName: "Someone",
+      senderEmail: "",
     });
 
     return NextResponse.json(friendRequest);
@@ -103,9 +103,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const session = await getServerSession();
+  const { userId } = auth();
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -124,7 +124,7 @@ export async function PUT(request: Request) {
       return new NextResponse("Friend request not found", { status: 404 });
     }
 
-    if (friendRequest.receiverId !== session.user.id) {
+    if (friendRequest.receiverId !== userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -152,7 +152,7 @@ export async function PUT(request: Request) {
       // Create a notification for the sender
       await createFriendRequestAcceptedNotification({
         recipientId: friendRequest.senderId,
-        accepterName: session.user.name || "Someone",
+        accepterName: "Someone",
       });
 
       return new NextResponse("Friend request accepted");

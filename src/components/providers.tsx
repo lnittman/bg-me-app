@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { SessionProvider } from "next-auth/react";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -12,10 +12,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <SessionProvider>
+      <ClerkProvider>
         {children}
         <Toaster richColors closeButton position="top-right" />
-      </SessionProvider>
+      </ClerkProvider>
     </ThemeProvider>
   );
 } 

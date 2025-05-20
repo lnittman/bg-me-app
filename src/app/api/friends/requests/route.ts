@@ -1,14 +1,13 @@
-import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { createFriendRequestAcceptedNotification } from "@/lib/notifications";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 // Get friend requests
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  const { userId } = auth();
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -16,8 +15,8 @@ export async function GET() {
     const requests = await prisma.friendRequest.findMany({
       where: {
         OR: [
-          { senderId: session.user.id },
-          { receiverId: session.user.id },
+          { senderId: userId },
+          { receiverId: userId },
         ],
       },
       include: {
@@ -49,9 +48,9 @@ export async function GET() {
 
 // Accept or reject friend request
 export async function PUT(request: Request) {
-  const session = await getServerSession(authOptions);
+  const { userId } = auth();
 
-  if (!session?.user?.id) {
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -70,7 +69,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Friend request not found" }, { status: 404 });
     }
 
-    if (friendRequest.receiverId !== session.user.id) {
+    if (friendRequest.receiverId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -98,7 +97,7 @@ export async function PUT(request: Request) {
       // Create a notification for the sender
       await createFriendRequestAcceptedNotification({
         recipientId: friendRequest.senderId,
-        accepterName: session.user.name || "Someone",
+        accepterName: "Someone",
       });
 
       return NextResponse.json({ message: "Friend request accepted" });
