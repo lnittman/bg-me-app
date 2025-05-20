@@ -111,7 +111,8 @@ The `GameBoard` and `Board` components render a simplified board using Tailwind 
 
 4. **Mobile & PWA Polishing**
    - Optimize layouts for mobile; test across devices.
-   - Confirm PWA installability and offline behavior.
+   - Confirm PWA installability and offline behavior. An offline fallback page
+     now exists at `/_offline` via `next-pwa`.
 
 5. **Testing & QA**
    - Add Jest/Vitest suite for game logic and API endpoints.
