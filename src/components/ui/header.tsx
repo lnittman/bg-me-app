@@ -74,7 +74,7 @@ export function Header() {
 
                 {session && (
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${session.user.id}`} className="flex items-center justify-between gap-2">
+                    <Link href="/profile" className="flex items-center justify-between gap-2">
                       <span>profile</span>
                       <Icon name="UserCircle" className="h-4 w-4" />
                     </Link>

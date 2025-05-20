@@ -27,7 +27,7 @@ export function AddFriendDialog() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ friendEmail: email }),
+        body: JSON.stringify({ recipientEmail: email }),
       });
 
       if (!response.ok) {
@@ -48,7 +48,7 @@ export function AddFriendDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" aria-label="add friend">
           <Icon name="UserPlus" className="w-5 h-5" />
         </Button>
       </DialogTrigger>
