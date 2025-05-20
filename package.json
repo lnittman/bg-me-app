@@ -11,7 +11,6 @@
     "migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.7.4",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
@@ -68,7 +67,8 @@
     "kysely": "^0.27.5",
     "lucide-react": "^0.475.0",
     "next": "15.2.0-canary.61",
-    "next-auth": "^4.24.11",
+    "@clerk/elements": "^0.1.7",
+    "@clerk/nextjs": "^5.0.0",
     "next-themes": "^0.4.4",
     "prisma": "^6.3.1",
     "react": "^19.0.0",

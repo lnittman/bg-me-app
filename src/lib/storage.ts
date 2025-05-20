@@ -13,6 +13,8 @@ export async function createRoom(player: Omit<Player, 'id' | 'roomId' | 'joinedA
         turn: 'white',
         moveInProgress: false,
         winner: null,
+        bar: { white: 0, black: 0 },
+        off: { white: 0, black: 0 },
       },
       status: 'waiting',
       players: {

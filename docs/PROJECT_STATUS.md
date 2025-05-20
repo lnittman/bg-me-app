@@ -96,9 +96,9 @@ The `GameBoard` and `Board` components render a simplified board using Tailwind 
 ## Suggested Roadmap to Release
 
 1. **Finalize Core Gameplay**
-   - Complete rule implementation (hitting, bar, bearing off).
-   - Add doubling cube and match scoring if desired.
-   - Polish GameBoard visuals and interactions.
+   - [x] Complete rule implementation (hitting, bar, bearing off).
+   - [ ] Add doubling cube and match scoring if desired.
+   - [ ] Polish GameBoard visuals and interactions.
 
 2. **Improve Realtime Infrastructure**
    - Harden WebSocket server with reconnect/backoff logic on client.

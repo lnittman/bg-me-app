@@ -52,17 +52,33 @@ export function isValidMove(
 }
 
 // Make a move on the board
-export function makeMove(board: number[], from: number, to: number): number[] {
+export function makeMove(
+  board: number[],
+  from: number,
+  to: number,
+  currentPlayer: "white" | "black",
+  bar: { white: number; black: number }
+): { board: number[]; bar: { white: number; black: number } } {
   const newBoard = [...board];
   const piece = newBoard[from];
-  
+
   // Remove piece from source
   newBoard[from] = newBoard[from] - Math.sign(piece);
-  
+
+  // Handle hitting
+  const destPiece = newBoard[to];
+  if (currentPlayer === "white" && destPiece === -1) {
+    bar.black += 1;
+    newBoard[to] = 0;
+  } else if (currentPlayer === "black" && destPiece === 1) {
+    bar.white += 1;
+    newBoard[to] = 0;
+  }
+
   // Add piece to destination
   newBoard[to] = newBoard[to] + Math.sign(piece);
-  
-  return newBoard;
+
+  return { board: newBoard, bar };
 }
 
 // Get all valid moves for the current player

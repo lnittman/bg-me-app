@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { signOut, useSession } from "next-auth/react"
+import { useUser, useAuth } from "@clerk/nextjs"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,8 @@ import { useState } from "react"
 
 export function ThemeSwitcher() {
   const { setTheme, theme } = useTheme()
-  const { data: session } = useSession()
+  const { user } = useUser()
+  const { signOut } = useAuth()
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -50,7 +51,7 @@ export function ThemeSwitcher() {
 
         <DropdownMenuSeparator />
         
-        {session && (
+        {user && (
           <>
             <DropdownMenuItem 
               className="group px-4 text-red-500/70 dark:text-red-400/70 hover:!bg-red-100 dark:hover:!bg-red-950/50 hover:!text-red-700 dark:hover:!text-red-400 transition-colors"
@@ -114,7 +115,7 @@ export function ThemeSwitcher() {
           </Button>
         </div>
 
-        {!session && (
+        {!user && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
