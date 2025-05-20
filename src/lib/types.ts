@@ -22,6 +22,14 @@ export interface GameState {
   turn: 'white' | 'black';
   moveInProgress: boolean;
   winner: 'white' | 'black' | null;
+  bar: {
+    white: number;
+    black: number;
+  };
+  off: {
+    white: number;
+    black: number;
+  };
 }
 
 export interface Room {
