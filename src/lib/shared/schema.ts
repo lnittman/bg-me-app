@@ -10,6 +10,14 @@ export interface GameState {
   currentPlayer: "white" | "black";
   dice: number[];
   moveInProgress: boolean;
+  bar: {
+    white: number;
+    black: number;
+  };
+  off: {
+    white: number;
+    black: number;
+  };
 }
 
 export interface Room {
