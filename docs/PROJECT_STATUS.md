@@ -105,7 +105,7 @@ The `GameBoard` and `Board` components render a simplified board using Tailwind 
    - Implement server-side validation of moves.
 
 3. **User Experience Enhancements**
-   - Build profile page, friend list management, and notifications UI.
+   - **Profile page with friend management and notifications UI implemented.**
    - Implement spectator view and optionally chat moderation.
    - Ensure accessibility: keyboard controls, screen reader labels.
 
