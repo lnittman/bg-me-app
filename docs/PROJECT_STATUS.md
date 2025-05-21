@@ -74,8 +74,8 @@ The `GameBoard` and `Board` components render a simplified board using Tailwind 
    - Need UI for viewing friends, pending requests, and notifications.
 
 4. **Spectator Mode**
-   - Room model supports spectators yet the UI only partially handles them.
-   - Implement spectator join flow and read‑only board view.
+   - **Spectator join flow implemented via a new "watch" option in the lobby.**
+   - Game board now detects spectator players and disables move interactions.
 
 5. **Matchmaking & Lobby**
    - Current lobby shows active rooms for logged‑in user but no public matchmaking or quick-play option.
@@ -106,7 +106,7 @@ The `GameBoard` and `Board` components render a simplified board using Tailwind 
 
 3. **User Experience Enhancements**
    - **Profile page with friend management and notifications UI implemented.**
-   - Implement spectator view and optionally chat moderation.
+   - **Spectator view available; chat moderation still pending.**
    - Ensure accessibility: keyboard controls, screen reader labels.
 
 4. **Mobile & PWA Polishing**
