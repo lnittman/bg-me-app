@@ -5,6 +5,7 @@ export interface Player {
   joinedAt: number;
   isReady?: boolean;
   color?: 'white' | 'black';
+  isSpectator?: boolean;
 }
 
 export interface Message {
