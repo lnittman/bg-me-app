@@ -6,6 +6,7 @@ export interface Player {
   color?: 'white' | 'black' | null;
   isHost?: boolean;
   isReady?: boolean;
+  isSpectator?: boolean;
 }
 
 export interface Message {

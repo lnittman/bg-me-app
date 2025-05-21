@@ -22,7 +22,10 @@ export function GameRoom() {
     return <div>Room not found</div>;
   }
 
+  const isSpectator = player.isSpectator || player.color === undefined;
+
   const handleMove = (from: number, to: number) => {
+    if (isSpectator) return;
     send({ type: 'move', from, to });
   };
 
@@ -40,24 +43,29 @@ export function GameRoom() {
   };
 
   return (
-    <div className="grid grid-cols-[1fr_300px] gap-4 h-full">
-      <Card>
-        <CardContent className="p-4">
-          <GameBoard
-            gameState={room.gameState}
-            currentPlayer={player}
-            onMove={handleMove}
-          />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="p-0 h-full">
-          <ChatBox
-            messages={room.messages}
-            onSendMessage={handleSendMessage}
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-2">
+      {isSpectator && (
+        <div className="text-center text-sm text-muted-foreground">spectating</div>
+      )}
+      <div className="grid grid-cols-[1fr_300px] gap-4 h-full">
+        <Card>
+          <CardContent className="p-4">
+            <GameBoard
+              gameState={room.gameState}
+              currentPlayer={player}
+              onMove={handleMove}
+            />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-0 h-full">
+            <ChatBox
+              messages={room.messages}
+              onSendMessage={handleSendMessage}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

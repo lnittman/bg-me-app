@@ -11,6 +11,7 @@ import { Users, Plus } from "lucide-react";
 import Link from "next/link";
 import { AddFriendDialog } from "@/components/AddFriendDialog";
 import { Icon } from "@/components/ui/icon";
+import { useGameStore } from "@/store/game";
 
 interface Friend {
   id: string;
@@ -35,6 +36,7 @@ export default function RoomPage() {
   const router = useRouter();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const setCurrentPlayer = useGameStore((state) => state.setCurrentPlayer);
 
   useEffect(() => {
     if (!user) {
@@ -55,6 +57,19 @@ export default function RoomPage() {
         .then((data) => setRooms(data));
     }
   }, [user?.id]);
+
+  const handleWatch = (roomId: string) => {
+    if (!user) return;
+    const spectator = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: user.firstName || user.username || "spectator",
+      emoji: "\uD83D\uDC40", // 👀
+      joinedAt: Date.now(),
+      isSpectator: true,
+    };
+    setCurrentPlayer(spectator);
+    router.push(`/room/${roomId}`);
+  };
 
   if (!user) {
     return null;
@@ -123,38 +138,40 @@ export default function RoomPage() {
           <ScrollArea className="h-[400px] pr-4">
             <div className="grid grid-cols-1 gap-4">
               {rooms.map((room) => (
-                <Link
-                  key={room.id}
-                  href={`/room/${room.id}`}
-                  className="block"
-                >
+                <div key={room.id}>
                   <Card className="transition-colors hover:bg-muted/50">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="flex -space-x-2">
-                            {room.players.map((player) => (
-                              <div
-                                key={player.id}
-                                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center ring-2 ring-background"
-                              >
-                                {player.emoji}
-                              </div>
-                            ))}
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex -space-x-2">
+                          {room.players.map((player) => (
+                            <div
+                              key={player.id}
+                              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center ring-2 ring-background"
+                            >
+                              {player.emoji}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium">
+                            {room.players.map((p) => p.name).join(" vs ")}
                           </div>
-                          <div className="space-y-1">
-                            <div className="text-sm font-medium">
-                              {room.players.map((p) => p.name).join(" vs ")}
-                            </div>
-                            <div className="text-xs text-muted-foreground capitalize">
-                              {room.status}
-                            </div>
+                          <div className="text-xs text-muted-foreground capitalize">
+                            {room.status}
                           </div>
                         </div>
                       </div>
+                      <div className="flex gap-2">
+                        <Button asChild size="sm">
+                          <Link href={`/room/${room.id}`}>join</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleWatch(room.id)}>
+                          watch
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
-                </Link>
+                </div>
               ))}
             </div>
           </ScrollArea>
