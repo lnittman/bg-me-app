@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createRoom } from '@/lib/db';
 import { nanoid } from 'nanoid';
-import { cache, blob, config } from '@/lib/vercel';
 import { ratelimit } from '@/lib/ratelimit';
-import { INITIAL_BOARD } from '@/lib/gameLogic';
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 
@@ -34,28 +32,6 @@ export async function POST() {
 
     // Create room in database
     const room = await createRoom(creatorId);
-
-    // Store room in KV for quick access
-    await cache.setRoom(roomId, roomData);
-
-    // Store initial game configuration in Edge Config
-    await config.set(`game:${roomId}:config`, {
-      initialBoard: INITIAL_BOARD,
-      createdAt: Date.now(),
-      maxPlayers: 2,
-      timeLimit: 30 * 60, // 30 minutes
-    });
-
-    // Create a blob storage directory for game snapshots
-    await blob.put(
-      `games/${roomId}/metadata.json`,
-      JSON.stringify({
-        createdAt: new Date().toISOString(),
-        creatorId,
-        status: 'waiting',
-      }),
-      { access: 'public' }
-    );
 
     return NextResponse.json({
       ...room,
@@ -117,3 +93,4 @@ export async function GET() {
 
   return NextResponse.json(rooms);
 }
+

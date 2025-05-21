@@ -1,8 +1,7 @@
 'use server'
 
 import { nanoid } from 'nanoid'
-import { createRoom, addPlayerToRoom } from '@/lib/db'
-import { cache, config, blob } from '@/lib/vercel'
+import { createRoom, addPlayerToRoom, getRoomWithRelations } from '@/lib/db'
 import { ratelimit } from '@/lib/ratelimit'
 import { INITIAL_BOARD } from '@/lib/gameLogic'
 
@@ -28,39 +27,7 @@ export async function createRoomAction(name: string, emoji: string) {
     ],
   })
 
-  const roomData = {
-    id: roomId,
-    creatorId: playerId,
-    players: [{ id: playerId, name, emoji }],
-    spectators: [],
-    messages: [],
-    gameState: null,
-    readyStates: {},
-  }
-
-  await cache.setRoom(roomId, roomData)
-  await config.set(`game:${roomId}:config`, {
-    initialBoard: INITIAL_BOARD,
-    createdAt: Date.now(),
-    maxPlayers: 2,
-    timeLimit: 30 * 60,
-  })
-  await blob.put(
-    `games/${roomId}/metadata.json`,
-    JSON.stringify({
-      createdAt: new Date().toISOString(),
-      creatorId: playerId,
-      status: 'waiting',
-    }),
-    { access: 'public' }
-  )
-  await cache.setPlayerSession(playerId, {
-    roomId,
-    name,
-    emoji,
-    isSpectator: false,
-    joinedAt: new Date().toISOString(),
-  })
+  // Store initial game configuration in the database if needed
 
   return { roomId, player: { id: playerId, name, emoji, joinedAt: Date.now() } }
 }
@@ -76,7 +43,7 @@ export async function joinRoomAction(
     throw new Error('Too many requests')
   }
 
-  const room = await cache.getRoom(roomId)
+  const room = await getRoomWithRelations(roomId)
   if (!room) {
     throw new Error('Room not found')
   }
@@ -97,21 +64,8 @@ export async function joinRoomAction(
 
   const player = { id: playerId, name, emoji, joinedAt: Date.now() }
 
-  const updatedRoom = {
-    ...room,
-    players: isSpectator ? room.players : [...room.players, player],
-    spectators: isSpectator ? [...room.spectators, player] : room.spectators,
-    updatedAt: new Date().toISOString(),
-  }
-
-  await cache.setRoom(roomId, updatedRoom)
-  await cache.setPlayerSession(playerId, {
-    roomId,
-    name,
-    emoji,
-    isSpectator,
-    joinedAt: new Date().toISOString(),
-  })
+  // Room state will be updated in the database via addPlayerToRoom
 
   return { roomId, player }
 }
+

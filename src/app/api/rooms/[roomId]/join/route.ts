@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cache } from '@/lib/vercel';
-import { addPlayerToRoom } from '@/lib/db';
+import { addPlayerToRoom, getRoomWithRelations } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 import { type Player } from '@/lib/shared/schema';
 
@@ -19,7 +18,7 @@ export async function POST(request: Request, { params }: Context) {
       return new NextResponse('Too many requests', { status: 429 });
     }
 
-    const room = await cache.getRoom(params.roomId);
+    const room = await getRoomWithRelations(params.roomId);
     if (!room) {
       return new NextResponse('Room not found', { status: 404 });
     }
@@ -40,30 +39,7 @@ export async function POST(request: Request, { params }: Context) {
       isSpectator: player.isSpectator || false,
     });
 
-    // Update room in cache
-    const updatedRoom = {
-      ...room,
-      players: player.isSpectator 
-        ? room.players 
-        : [...room.players, player],
-      spectators: player.isSpectator
-        ? [...room.spectators, player]
-        : room.spectators,
-      updatedAt: new Date().toISOString(),
-    };
-
-    await cache.setRoom(params.roomId, updatedRoom);
-
-    // Store player session
-    await cache.setPlayerSession(player.id, {
-      roomId: params.roomId,
-      name: player.name,
-      emoji: player.emoji,
-      isSpectator: player.isSpectator,
-      joinedAt: new Date().toISOString(),
-    });
-
-    return NextResponse.json(updatedRoom);
+    return NextResponse.json(room);
   } catch (error) {
     console.error('Error joining room:', error);
     return new NextResponse('Error joining room', { status: 500 });
