@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useAtom } from "jotai";
 import { type GameState } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { getPlayerBoard } from "@/lib/gameLogic";
 import { motion, AnimatePresence } from "framer-motion";
+import Point from "./Point";
+import { selectedPointAtom } from "@/store/ui";
 
 interface BoardProps {
   gameState: GameState;
@@ -15,7 +16,7 @@ interface BoardProps {
 }
 
 export default function Board({ gameState, onMove, onRollDice, currentPlayer, isMyTurn, isSpectator }: BoardProps) {
-  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
+  const [selectedPoint, setSelectedPoint] = useAtom(selectedPointAtom);
 
   const handlePointClick = (index: number) => {
     if (!isMyTurn || isSpectator) return;
@@ -141,83 +142,6 @@ export default function Board({ gameState, onMove, onRollDice, currentPlayer, is
             </div>
           ))}
         </div>
-      </div>
-    </div>
-  );
-}
-
-interface PointProps {
-  index: number;
-  count: number;
-  isTop: boolean;
-  selected: boolean;
-  onClick: () => void;
-  isMyTurn: boolean;
-  isSpectator: boolean;
-}
-
-function Point({
-  index,
-  count,
-  isTop,
-  selected,
-  onClick,
-  isMyTurn,
-  isSpectator,
-}: PointProps) {
-  const isEven = index % 2 === 0;
-  
-  return (
-    <div
-      onClick={onClick}
-      className={cn(
-        "relative h-full transition-colors",
-        selected && "ring-1 ring-primary ring-inset",
-        isMyTurn && !isSpectator && "cursor-pointer hover:bg-accent/5",
-        "group"
-      )}
-    >
-      {/* Triangle with rounded corners */}
-      <div 
-        className={cn(
-          "absolute inset-x-0",
-          isTop ? "top-0 h-[95%]" : "bottom-0 h-[95%]",
-          isEven ? "bg-muted/70" : "bg-muted/30",
-          "transition-colors group-hover:brightness-110",
-          "rounded-lg before:absolute before:inset-0 before:rounded-lg",
-          isTop 
-            ? "before:origin-top before:[clip-path:polygon(0_0,100%_0,50%_100%)]"
-            : "before:origin-bottom before:[clip-path:polygon(50%_0,0_100%,100%_100%)]",
-          "overflow-hidden"
-        )}
-      >
-        <div 
-          className={cn(
-            "absolute inset-0 rounded-lg",
-            isEven ? "bg-muted/70" : "bg-muted/30"
-          )}
-        />
-      </div>
-
-      {/* Pieces Stack */}
-      <div className={cn(
-        "absolute left-1/2 -translate-x-1/2",
-        isTop ? "top-[5%]" : "bottom-[5%]",
-        "w-[50%] flex flex-col items-center",
-        isTop ? "gap-[0.75%]" : "gap-[0.75%] flex-col-reverse"
-      )}>
-        {Array.from({ length: Math.abs(count) }).map((_, j) => (
-          <div
-            key={j}
-            className={cn(
-              "w-full aspect-square rounded-full border transition-all",
-              count > 0 
-                ? "bg-background border-foreground shadow-[inset_0_1px_theme(colors.muted.DEFAULT)]" 
-                : "bg-foreground border-background shadow-[inset_0_1px_rgba(255,255,255,0.1)]",
-              selected && "ring-1 ring-primary ring-offset-1"
-            )}
-          />
-        ))}
       </div>
     </div>
   );
