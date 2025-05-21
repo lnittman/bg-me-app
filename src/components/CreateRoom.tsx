@@ -1,27 +1,24 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useGameStore } from '@/store/game';
-import { type Player } from '@/types/schema';
-import PlayerEditForm from '@/components/game/PlayerEditForm';
+import { useRouter } from 'next/navigation'
+import { useGameStore } from '@/store/game'
+import { type Player } from '@/types/schema'
+import PlayerEditForm from '@/components/game/PlayerEditForm'
+import { createRoomAction } from '@/app/room/actions'
+import { useTransition } from 'react'
 
 export function CreateRoom() {
-  const router = useRouter();
-  const setCurrentPlayer = useGameStore(state => state.setCurrentPlayer);
+  const router = useRouter()
+  const setCurrentPlayer = useGameStore((state) => state.setCurrentPlayer)
+  const [isPending, startTransition] = useTransition()
 
   const handleSubmit = async (name: string, emoji: string) => {
-    const player: Player = {
-      id: Math.random().toString(36).substring(2, 9),
-      name,
-      emoji,
-      joinedAt: Date.now(),
-      isReady: false,
-      color: 'white',
-    };
-
-    setCurrentPlayer(player);
-    router.push(`/room/${Math.random().toString(36).substring(2, 9)}`);
-  };
+    startTransition(async () => {
+      const { roomId, player } = await createRoomAction(name, emoji)
+      setCurrentPlayer(player as Player)
+      router.push(`/room/${roomId}`)
+    })
+  }
 
   return (
     <div className="w-full max-w-md p-6 space-y-4">
