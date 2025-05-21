@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cache } from '@/lib/vercel';
-import { addMessage } from '@/lib/db';
+import { addMessage, getRoomWithRelations } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 import { type Message } from '@/lib/shared/schema';
 
@@ -12,15 +11,12 @@ export async function GET(
   { params }: { params: { roomId: string } }
 ) {
   try {
-    const room = await cache.getRoom(params.roomId);
+    const room = await getRoomWithRelations(params.roomId);
     if (!room) {
       return new NextResponse('Room not found', { status: 404 });
     }
 
-    // Get messages from cache
-    const messages = await cache.getChatMessages(params.roomId);
-
-    return NextResponse.json(messages);
+    return NextResponse.json(room.messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
     return new NextResponse('Error fetching messages', { status: 500 });
@@ -38,7 +34,7 @@ export async function POST(
       return new NextResponse('Too many messages', { status: 429 });
     }
 
-    const room = await cache.getRoom(params.roomId);
+    const room = await getRoomWithRelations(params.roomId);
     if (!room) {
       return new NextResponse('Room not found', { status: 404 });
     }
@@ -53,19 +49,7 @@ export async function POST(
     }
 
     // Add message to database
-    const newMessage = await addMessage({
-      id: crypto.randomUUID(),
-      roomId: params.roomId,
-      playerId: message.playerId,
-      text: message.text,
-      timestamp: new Date(),
-    });
-
-    // Add to cache
-    await cache.addChatMessage(params.roomId, {
-      ...message,
-      timestamp: Date.now(),
-    });
+    const newMessage = await addMessage(params.roomId, message.playerId, message.text);
 
     return NextResponse.json(newMessage);
   } catch (error) {

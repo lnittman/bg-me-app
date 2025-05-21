@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cache } from '@/lib/vercel';
-import { updateReadyState } from '@/lib/db';
+import { getRoomWithRelations, updateReadyState } from '@/lib/db';
 import { ratelimit } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
@@ -15,7 +14,7 @@ export async function POST(
       return new NextResponse('Too many requests', { status: 429 });
     }
 
-    const room = await cache.getRoom(params.roomId);
+    const room = await getRoomWithRelations(params.roomId);
     if (!room) {
       return new NextResponse('Room not found', { status: 404 });
     }
@@ -31,15 +30,11 @@ export async function POST(
     // Update ready state in database
     await updateReadyState(params.roomId, playerId, isReady);
 
-    // Update ready state in cache
     const readyStates = { ...room.readyStates, [playerId]: isReady };
     const updatedRoom = {
       ...room,
       readyStates,
-      updatedAt: new Date().toISOString(),
     };
-
-    await cache.setRoom(params.roomId, updatedRoom);
 
     // Check if all players are ready
     const allPlayersReady = room.players.length === 2 && 

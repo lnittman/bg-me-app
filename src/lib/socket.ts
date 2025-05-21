@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
 import { type Server as HTTPServer } from 'http';
-import { kv } from '@vercel/kv';
-import { updateGameState, addMessage, updateReadyState } from './db';
+import { updateGameState, addMessage, updateReadyState, getRoomWithRelations } from './db';
 import { type GameState, type Message } from './shared/schema';
 import { isValidMove, makeMove, rollDice } from './gameLogic';
 import { ratelimit } from './ratelimit';
@@ -27,8 +26,7 @@ export const initSocket = (server: HTTPServer) => {
       socket.join(roomId);
       currentRoom = roomId;
 
-      // Get room data from KV store
-      const room = await kv.get(`room:${roomId}`);
+      const room = await getRoomWithRelations(roomId);
       if (room) {
         socket.emit('roomState', room);
       }
@@ -42,7 +40,7 @@ export const initSocket = (server: HTTPServer) => {
           return;
         }
 
-        const room = await kv.get<any>(`room:${roomId}`);
+        const room = await getRoomWithRelations(roomId);
         if (!room || !room.gameState) {
           socket.emit('error', 'Room not found');
           return;
@@ -68,8 +66,6 @@ export const initSocket = (server: HTTPServer) => {
         const newState: GameState = { ...room.gameState, board: newBoard, dice, turn: nextTurn };
         await updateGameState(roomId, newState);
 
-        await kv.set(`room:${roomId}`, { ...room, gameState: newState });
-
         io.to(roomId).emit('gameState', newState);
       } catch (error) {
         console.error('Error processing move:', error);
@@ -87,22 +83,7 @@ export const initSocket = (server: HTTPServer) => {
         }
 
         // Add message to database
-        await addMessage({
-          id: crypto.randomUUID(),
-          roomId,
-          playerId: message.playerId,
-          text: message.text,
-          timestamp: new Date(),
-        });
-
-        // Update KV store
-        const room = await kv.get(`room:${roomId}`);
-        if (room) {
-          await kv.set(`room:${roomId}`, {
-            ...room,
-            messages: [...room.messages, message],
-          });
-        }
+        await addMessage(roomId, message.playerId, message.text);
 
         // Broadcast message to room
         io.to(roomId).emit('message', message);
@@ -116,16 +97,6 @@ export const initSocket = (server: HTTPServer) => {
       try {
         // Update ready state in database
         await updateReadyState(roomId, playerId, isReady);
-
-        // Update KV store
-        const room = await kv.get(`room:${roomId}`);
-        if (room) {
-          const readyStates = { ...room.readyStates, [playerId]: isReady };
-          await kv.set(`room:${roomId}`, {
-            ...room,
-            readyStates,
-          });
-        }
 
         // Broadcast ready state to room
         io.to(roomId).emit('readyState', { playerId, isReady });
