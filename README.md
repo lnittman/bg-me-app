@@ -1,75 +1,63 @@
 <div align="center">
-  <img src="https://v3.fal.media/files/panda/-cPPScx7-K-rZwPdqv_c5.png" alt="bg-me-app logo" width="80" height="80">
+  <img src="https://v3.fal.media/files/koala/3gJrkmDPqDYlh-0rYZruQ.png" alt="bg-me logo" width="80" height="80">
   
   # bg-me-app
   
-  **intelligent background removal and photo editing application**
+  **kawaii backgammon game with intelligent ai opponent**
 </div>
 
 <br>
 
 ## Overview
 
-BG-Me-App is a modern photo editing application focused on intelligent background removal and replacement. Leveraging advanced AI algorithms to deliver professional-quality results with simple, intuitive controls.
+BG-Me is a delightful backgammon application featuring a friendly AI opponent and beautiful game interface. Experience the classic strategy board game with modern design and smart gameplay assistance.
 
 ## Features
 
-- 🎯 **Smart Background Removal** - AI-powered automatic background detection
-- 🖼️ **Background Replacement** - Extensive library of backgrounds and custom uploads
-- ✂️ **Precision Editing** - Manual refinement tools for perfect edges
-- 🎨 **Creative Effects** - Filters, adjustments, and artistic enhancements
-- 📱 **Mobile Optimized** - Responsive design for all devices
-- ⚡ **Fast Processing** - Optimized algorithms for quick results
+- 🎲 **Classic Backgammon** - Traditional rules with modern interface
+- 🤖 **AI Opponent** - Multiple difficulty levels for all skill ranges
+- 🎨 **Beautiful Design** - Clean, intuitive board and piece design
+- 📱 **Mobile Optimized** - Smooth touch controls and responsive layout
+- 🎯 **Game Assistance** - Optional hints and move suggestions
+- 📊 **Statistics** - Track your wins, games played, and improvement
 
-## Technology Stack
+## Game Features
 
-- **Frontend**: Modern web technologies with responsive design
-- **AI Processing**: Advanced machine learning models for segmentation
-- **Image Processing**: High-performance canvas and WebGL operations
-- **Storage**: Efficient image handling and compression
-- **UI/UX**: Intuitive interface designed for creators
+### AI Intelligence
+- **Beginner Mode** - Perfect for learning the game
+- **Intermediate Mode** - Balanced challenge for casual play
+- **Expert Mode** - Strategic depth for serious players
+- **Adaptive Learning** - AI adjusts to your playing style
 
-## Quick Start
+### User Experience
+- **Drag & Drop** - Intuitive piece movement
+- **Move Validation** - Automatic rule enforcement
+- **Undo/Redo** - Forgiving gameplay experience
+- **Game Replay** - Review your moves and strategies
 
-```bash
-git clone https://github.com/lnittman/bg-me-app
-cd bg-me-app
-npm install
-npm run dev
-```
+## How to Play
 
-Visit `http://localhost:3000` to start editing photos.
+1. **Setup** - Choose your AI difficulty level
+2. **Roll Dice** - Tap to roll and see your movement options
+3. **Move Pieces** - Drag checkers to valid positions
+4. **Strategy** - Build walls, make runs, bear off pieces
+5. **Win** - First player to bear off all pieces wins!
 
-## Workflow
+## Technology
 
-1. **Upload** - Drag and drop photos or select from gallery
-2. **Detect** - Automatic AI background detection and removal
-3. **Refine** - Manual touch-ups with precision tools
-4. **Replace** - Choose new backgrounds or upload custom ones
-5. **Enhance** - Apply filters and adjustments
-6. **Export** - Download in various formats and resolutions
+- **Game Engine** - Optimized backgammon logic and validation
+- **AI System** - Monte Carlo tree search for intelligent moves
+- **Graphics** - Smooth animations and responsive design
+- **Platform** - Cross-platform compatibility
 
-## AI Features
+## Game Rules
 
-- **Subject Detection** - Accurate person and object recognition
-- **Edge Refinement** - Smart edge detection for clean cutouts
-- **Hair Detail** - Advanced algorithms for fine detail preservation
-- **Batch Processing** - Process multiple images efficiently
-
-## Use Cases
-
-- **E-commerce** - Product photography with clean backgrounds
-- **Social Media** - Creative content for posts and stories
-- **Professional** - Headshots and corporate photography
-- **Creative** - Artistic compositions and digital art
-
-## Export Options
-
-- **Formats**: PNG, JPEG, WebP
-- **Resolutions**: Original, optimized, and custom sizes
-- **Transparency**: Full alpha channel support
-- **Compression**: Quality optimization for web and print
+Traditional backgammon rules with:
+- Standard 24-point board layout
+- Doubling cube for competitive play
+- Crawford rule implementation
+- Official tournament regulations
 
 ---
 
-*Remove backgrounds, reveal possibilities*
+*Roll the dice, make your moves, have fun!* 🎲
