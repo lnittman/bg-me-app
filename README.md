@@ -1,42 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="https://v3.fal.media/files/panda/-cPPScx7-K-rZwPdqv_c5.png" alt="bg-me-app logo" width="80" height="80">
+  
+  # bg-me-app
+  
+  **intelligent background removal and photo editing application**
+</div>
 
-## Getting Started
+<br>
 
-First, run the development server:
+## Overview
+
+BG-Me-App is a modern photo editing application focused on intelligent background removal and replacement. Leveraging advanced AI algorithms to deliver professional-quality results with simple, intuitive controls.
+
+## Features
+
+- 🎯 **Smart Background Removal** - AI-powered automatic background detection
+- 🖼️ **Background Replacement** - Extensive library of backgrounds and custom uploads
+- ✂️ **Precision Editing** - Manual refinement tools for perfect edges
+- 🎨 **Creative Effects** - Filters, adjustments, and artistic enhancements
+- 📱 **Mobile Optimized** - Responsive design for all devices
+- ⚡ **Fast Processing** - Optimized algorithms for quick results
+
+## Technology Stack
+
+- **Frontend**: Modern web technologies with responsive design
+- **AI Processing**: Advanced machine learning models for segmentation
+- **Image Processing**: High-performance canvas and WebGL operations
+- **Storage**: Efficient image handling and compression
+- **UI/UX**: Intuitive interface designed for creators
+
+## Quick Start
 
 ```bash
+git clone https://github.com/lnittman/bg-me-app
+cd bg-me-app
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` to start editing photos.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Workflow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Upload** - Drag and drop photos or select from gallery
+2. **Detect** - Automatic AI background detection and removal
+3. **Refine** - Manual touch-ups with precision tools
+4. **Replace** - Choose new backgrounds or upload custom ones
+5. **Enhance** - Apply filters and adjustments
+6. **Export** - Download in various formats and resolutions
 
-## PWA & Offline Support
+## AI Features
 
-The app is installable as a Progressive Web App. When offline, a fallback page
-at `/_offline` will be shown if a cached version of the requested page is not
-available.
+- **Subject Detection** - Accurate person and object recognition
+- **Edge Refinement** - Smart edge detection for clean cutouts
+- **Hair Detail** - Advanced algorithms for fine detail preservation
+- **Batch Processing** - Process multiple images efficiently
 
-## Learn More
+## Use Cases
 
-To learn more about Next.js, take a look at the following resources:
+- **E-commerce** - Product photography with clean backgrounds
+- **Social Media** - Creative content for posts and stories
+- **Professional** - Headshots and corporate photography
+- **Creative** - Artistic compositions and digital art
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Export Options
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Formats**: PNG, JPEG, WebP
+- **Resolutions**: Original, optimized, and custom sizes
+- **Transparency**: Full alpha channel support
+- **Compression**: Quality optimization for web and print
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Remove backgrounds, reveal possibilities*
